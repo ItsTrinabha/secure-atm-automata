@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Master: Theory, Architecture & Diagnostics</title>
+    
+    <!-- External Fonts and Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Nabla&family=Orbitron:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+    
+    <style>
+        :root {
+            --neon-cyan: #00ffcc;
+            --neon-pink: #ff0077;
+            --neon-yellow: #ffcc00;
+            --bg-dark: #0a0a0c;
+            --card-bg: #151518;
+            --panel-border: #333;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-family: 'Nabla', system-ui;
+            font-size: clamp(2rem, 8vw, 4rem);
+            margin: 0;
+        }
+
+        .subtitle {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Error Overlay */
+        #errorOverlay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #900;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            display: none;
+            animation: slideIn 0.3s ease-out;
+            border-left: 5px solid white;
+        }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Tabs Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--panel-border);
+            color: var(--text-dim);
+            padding: 10px 18px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            transition: 0.3s;
+            border-radius: 4px;
+        }
+
+        .tab-btn.active {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 255, 204, 0.05);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Panel & Grid Layouts */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ATM Screen UI */
+        .screen {
+            background: #000;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 8px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        .screen.error-state { border-color: var(--neon-pink); color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+
+        .pin-input-area {
+            display: none;
+            margin-top: 10px;
+        }
+
+        input[type="password"] {
+            background: #111;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 8px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            width: 100px;
+            letter-spacing: 4px;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        button.atm-btn {
+            background: transparent;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        button.atm-btn:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 10px var(--neon-cyan); }
+        button.atm-btn.reset-btn { border-color: var(--neon-pink); color: var(--neon-pink); grid-column: span 2; margin-top: 5px; }
+        button.atm-btn.reset-btn:hover { background: var(--neon-pink); color: #fff; box-shadow: 0 0 10px var(--neon-pink); }
+
+        /* Diagnostic List */
+        .diag-item {
+            padding: 10px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+        .error-tag { background: var(--neon-pink); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+
+        /* Architecture Elements */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .arch-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #222;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .arch-card h4 { margin: 0 0 8px 0; color: var(--neon-yellow); font-size: 0.85rem; font-family: 'Orbitron', sans-serif; }
+        .arch-card p { margin: 0; font-size: 0.75rem; line-height: 1.4; color: var(--text-dim); }
+
+        .software-stack { display: flex; flex-direction: column; gap: 5px; }
+        .stack-layer { padding: 15px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        .layer-app { background: rgba(0, 255, 204, 0.15); border-color: var(--neon-cyan); }
+        .layer-mid { background: rgba(255, 204, 0, 0.15); border-color: var(--neon-yellow); }
+        .layer-os { background: rgba(255, 0, 119, 0.15); border-color: var(--neon-pink); }
+
+        /* FSM Visualization */
+        #graph { height: 400px; background: #000; border-radius: 8px; margin-top: 10px; }
+        .table-container { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th, td { border: 1px solid var(--panel-border); padding: 8px; text-align: center; }
+        th { background: #1a1a1e; color: var(--neon-cyan); }
+        .highlight-row { background: rgba(0, 255, 204, 0.05); }
+
+        .tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; background: #333; color: #fff; margin-right: 5px; }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #232327;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .info-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            line-height: 1.6;
+        }
+
+        .info-card pre {
+            margin: 12px 0 0 0;
+            padding: 12px;
+            background: #0d0d10;
+            border: 1px solid #222;
+            border-radius: 8px;
+            color: var(--neon-cyan);
+            overflow-x: auto;
+            font-size: 0.74rem;
+        }
+
+        .advanced-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .advanced-output {
+            min-height: 80px;
+            padding: 14px;
+            background: #0d0d10;
+            border: 1px solid #222;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            font-size: 0.75rem;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        .mini-input {
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .mode-indicator {
+            color: var(--neon-yellow);
+            font-size: 0.72rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .stack-visual, .tape-visual {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .stack-item, .tape-cell {
+            min-width: 78px;
+            padding: 10px 12px;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid #2c2c31;
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 0.75rem;
+        }
+
+        .stack-item { color: var(--neon-yellow); }
+
+        .tape-cell.active {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.25);
+            color: var(--neon-cyan);
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .status-pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            border: 1px solid #2e2e33;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .theory-link {
+            display: inline-block;
+            margin-top: 14px;
+            color: var(--neon-cyan);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+
+        .theory-link:hover { border-color: var(--neon-cyan); }
+    </style>
+</head>
+<body>
+
+    <div id="errorOverlay">SYSTEM ALERT: INVALID INPUT</div>
+
+    <div class="container">
+        <header>
+            <h1 class="title">ATM AUTOMATA</h1>
+            <div class="subtitle">MADE BY-TRINABHA DIXIT AND BHARGAV MAHANTA</div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('interactive')">Console & FSM</button>
+            <button class="tab-btn" onclick="showTab('hardware')">Hardware</button>
+            <button class="tab-btn" onclick="showTab('software')">Software Logic</button>
+            <button class="tab-btn" onclick="showTab('diagnostics')">Error Segments</button>
+            <button class="tab-btn" onclick="showTab('design')">Challenges</button>
+            <button class="tab-btn" onclick="showTab('advanced')">Advanced TOC</button>
+            <button class="tab-btn" onclick="showTab('theory')">TOC Usage</button>
+        </nav>
+
+        <!-- Tab 1: Interactive Console -->
+        <div id="interactive" class="tab-content active">
+            <div class="grid-layout">
+                <div class="panel">
+                    <div class="section-title">Terminal Emulator <span style="font-size:0.6rem; opacity:0.6">PIN: 1234</span></div>
+                    <div class="screen" id="atmScreen">
+                        <div style="font-size: 0.6rem; opacity: 0.7;" id="stateLabel">q0: IDLE</div>
+                        <div id="screenMsg" style="font-weight: bold; margin: 10px 0;">WELCOME / INSERT CARD</div>
+                        <div class="pin-input-area" id="pinArea">
+                            <input type="password" id="pinInput" maxlength="4" placeholder="****">
+                            <button class="atm-btn" style="padding: 5px 10px; font-size: 0.6rem; margin-top: 5px;" onclick="validatePin()">Submit</button>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="atm-btn" onclick="handleInput('card')">Insert Card</button>
+                        <button class="atm-btn" onclick="handleInput('op')">Choose Op</button>
+                        <button class="atm-btn" onclick="handleInput('withdraw')">Withdraw</button>
+                        <button class="atm-btn" onclick="handleInput('exit')">Cancel/Exit</button>
+                        <button class="atm-btn reset-btn" onclick="resetSystem()">Hardware Reset</button>
+                    </div>
+                    <div style="margin-top: 15px; font-family: monospace; color: var(--neon-yellow); font-size: 0.75rem;" id="transitionLog">
+                        δ(start, ε) → q0
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="section-title">Automata Analysis</div>
+                    <div style="font-size: 0.75rem; line-height: 1.6;">
+                        <div><span class="tag">Σ</span> <strong>Alphabet:</strong> {card, pin, op, withdraw, exit}</div>
+                        <div><span class="tag">Q</span> <strong>States:</strong> {q0, q1, q2, q3, q4, q_dead}</div>
+                        <div style="margin-top: 5px;"><strong>Dead States:</strong> <span id="deadStatus" style="color: var(--neon-pink); font-weight: bold;">Calculating...</span></div>
+                    </div>
+                    <div class="table-container" id="matrixContainer"></div>
+                </div>
+            </div>
+            <div class="panel" style="margin-top: 20px;">
+                <div class="section-title">Live State Graph</div>
+                <div id="graph"></div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Hardware -->
+        <div id="hardware" class="tab-content">
+            <div class="panel">
+                <div class="section-title">Hardware Architecture Block Diagram</div>
+                <div class="arch-grid">
+                    <div class="arch-card"><h4>ATM Controller</h4><p>Main processing board managing all I/O, security logic, and banking network protocols.</p></div>
+                    <div class="arch-card"><h4>Encrypted PIN Pad</h4><p>Tamper-resistant keypad that hardware-encrypts PINs before they ever reach the CPU.</p></div>
+                    <div class="arch-card"><h4>Card Reader</h4><p>Detects EMV chips or magnetic stripes. Includes fraud sensors for anti-skimming.</p></div>
+                    <div class="arch-card"><h4>Cash Dispenser</h4><p>Mechatronic system with rollers and sensors to pick, count, and dispense currency notes.</p></div>
+                    <div class="arch-card"><h4>Secure Vault</h4><p>UL-rated steel safe containing the cash cassettes and high-security dispensers.</p></div>
+                    <div class="arch-card"><h4>Receipt Printer</h4><p>Thermal printer for transaction records, connected via internal USB/Serial.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Software -->
+        <div id="software" class="tab-content">
+            <div class="grid-layout">
+                <div class="panel">
+                    <div class="section-title">Software Architecture Stack</div>
+                    <div class="software-stack">
+                        <div class="stack-layer layer-app"><strong>APPLICATION:</strong> Transaction State Manager, UI, Security Logic</div>
+                        <div class="stack-layer layer-mid"><strong>MIDDLEWARE:</strong> XFS/CEN API - Hardware Abstraction Layer</div>
+                        <div class="stack-layer layer-os"><strong>BASE:</strong> Hardened OS (Windows/Linux), Drivers, TCP/IP Stack</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="section-title">Transaction Logic</div>
+                    <ul style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.8;">
+                        <li><strong>Atomicity:</strong> Transactions are all-or-nothing to prevent balance mismatches.</li>
+                        <li><strong>ISO 8583:</strong> Standard messaging protocol for banking host communication.</li>
+                        <li><strong>HSM Integration:</strong> Hardware security module calls for key rotation and PIN validation.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Diagnostics -->
+        <div id="diagnostics" class="tab-content">
+            <div class="panel">
+                <div class="section-title">Diagnostic Error Segments</div>
+                <div class="arch-grid">
+                    <div class="arch-card">
+                        <h4>Trap State (Automata)</h4>
+                        <p>Occurs when an invalid sequence (like a wrong PIN) or out-of-order operation is entered. System enters a security lock ($q_{dead}$).</p>
+                        <span class="error-tag">Logic Failure</span>
+                    </div>
+                    <div class="arch-card">
+                        <h4>I/O Mechanical Jam</h4>
+                        <p>Sensors in the dispenser detect stuck notes. Triggers immediate halt and error log.</p>
+                        <span class="error-tag">Hardware Fault</span>
+                    </div>
+                    <div class="arch-card">
+                        <h4>HSM Tamper Event</h4>
+                        <p>Internal hardware sensors detect physical case breach. Wipes encryption keys instantly.</p>
+                        <span class="error-tag">Security Breach</span>
+                    </div>
+                    <div class="arch-card">
+                        <h4>Network Timeout</h4>
+                        <p>Latency in Bank Host response exceeding 30s. Safely reverts transaction states.</p>
+                        <span class="error-tag">Comm Error</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Design Challenges -->
+        <div id="design" class="tab-content">
+            <div class="panel">
+                <div class="section-title">Design Constraints</div>
+                <div class="arch-grid">
+                    <div class="arch-card" style="border-left: 4px solid var(--neon-cyan);">
+                        <h4>Availability</h4>
+                        <p>Must maintain 99.9% uptime despite power fluctuations or network instability.</p>
+                    </div>
+                    <div class="arch-card" style="border-left: 4px solid var(--neon-pink);">
+                        <h4>Robustness</h4>
+                        <p>Hardware must withstand extreme heat, dust, and physical vandalism attempts.</p>
+                    </div>
+                    <div class="arch-card" style="border-left: 4px solid var(--neon-yellow);">
+                        <h4>Compliance</h4>
+                        <p>Adherence to PCI-DSS, EMV Level 1/2, and regional banking regulations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 6: Advanced TOC -->
+        <div id="advanced" class="tab-content">
+            <div class="panel">
+                <div class="section-title">Advanced Automata Models <span class="mode-indicator" id="automataModeLabel">Mode: DFA</span></div>
+                <div class="advanced-actions">
+                    <button class="atm-btn" onclick="switchMode('DFA')">DFA Mode</button>
+                    <button class="atm-btn" onclick="switchMode('NFA')">NFA Mode</button>
+                    <button class="atm-btn" onclick="switchMode('ENFA')">ε-NFA Mode</button>
+                    <button class="atm-btn" onclick="convertNFAtoDFA()">Convert to DFA</button>
+                </div>
+                <div class="advanced-output" id="advancedOutput">DFA mode is active. The ATM accepts one valid next state for each legal input symbol.</div>
+            </div>
+
+            <div class="two-col-grid" style="margin-top: 20px;">
+                <div class="panel">
+                    <div class="section-title">NFA and ε-NFA</div>
+                    <div class="info-card">
+                        <h3>NFA</h3>
+                        <p>In a Non-Deterministic Finite Automaton, one input may lead to multiple next states. In this ATM model, entering a PIN can move the system toward successful authentication or toward a security dead state.</p>
+                        <pre>q1 --pin--> {q2, q_dead}
+q2 --op--> {q3, q_dead}
+q3 --withdraw--> {q4}</pre>
+                    </div>
+                    <div class="info-card" style="margin-top: 15px;">
+                        <h3>ε-NFA</h3>
+                        <p>An epsilon transition changes state without consuming input. Here, once the card is inserted, the system can automatically prepare the next logical configuration using ε-transition behavior.</p>
+                        <pre>q1 --ε--> q2
+The machine moves forward without consuming another input symbol.</pre>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="section-title">Regular Expression and CFG</div>
+                    <div class="info-card">
+                        <h3>Regular Expression</h3>
+                        <p>The ideal transaction flow is represented by a regular expression that enforces the exact sequence of ATM actions.</p>
+                        <pre>(card)(pin)(op)(withdraw)(exit)</pre>
+                        <input class="mini-input" id="regexInput" placeholder="Enter sequence like: cardpinopwithdrawexit">
+                        <div class="advanced-actions">
+                            <button class="atm-btn" onclick="runRegexCheck()">Check Regex</button>
+                        </div>
+                        <div class="advanced-output" id="regexOutput">Regex validator ready.</div>
+                    </div>
+                    <div class="info-card" style="margin-top: 15px;">
+                        <h3>Context-Free Grammar</h3>
+                        <p>The same ATM process can be described using production rules, where every rule expands the next valid step of the transaction.</p>
+                        <pre>S → card A
+A → pin B
+B → op C
+C → withdraw D
+D → exit</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-col-grid" style="margin-top: 20px;">
+                <div class="panel">
+                    <div class="section-title">PDA Simulation</div>
+                    <div class="info-card">
+                        <h3>Pushdown Automata</h3>
+                        <p>The PDA adds stack memory to finite-state behavior. In this project, the stack explains session memory such as card insertion and PIN validation order.</p>
+                        <div class="advanced-actions">
+                            <button class="atm-btn" onclick="pushdown('card')">Push Card</button>
+                            <button class="atm-btn" onclick="pushdown('pin')">Push PIN</button>
+                            <button class="atm-btn" onclick="pushdown('exit')">Pop Exit</button>
+                            <button class="atm-btn" onclick="resetStack()">Reset Stack</button>
+                        </div>
+                        <div class="advanced-output" id="pdaOutput">Stack simulator ready.</div>
+                        <div class="stack-visual" id="stackVisual"></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="section-title">Turing Machine Simulation</div>
+                    <div class="info-card">
+                        <h3>Tape and Head Movement</h3>
+                        <p>A Turing Machine generalizes computation using a tape and a moving head. We model the tape as the ATM input sequence and move the head to the right after every read.</p>
+                        <div class="advanced-actions">
+                            <button class="atm-btn" onclick="moveHead()">Move Head</button>
+                            <button class="atm-btn" onclick="resetTape()">Reset Tape</button>
+                        </div>
+                        <div class="advanced-output" id="tmOutput">Tape simulator ready.</div>
+                        <div class="tape-visual" id="tapeVisual"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <div class="section-title">NFA to DFA Conversion Result</div>
+                <div class="advanced-output" id="conversionOutput">Click "Convert to DFA" to generate combined DFA states such as {q1, q2}.</div>
+            </div>
+        </div>
+
+        <!-- Tab 7: TOC Usage -->
+        <div id="theory" class="tab-content">
+            <div class="panel">
+                <div class="section-title">Theory of Computation Used in This Project</div>
+                <div class="two-col-grid">
+                    <div class="info-card">
+                        <h3>1. DFA in the ATM Flow</h3>
+                        <p>The original project is a deterministic finite automaton. Each valid input from a current state has exactly one next state, so the machine follows a fixed sequence from card insertion to exit.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>2. NFA Extension</h3>
+                        <p>We extended the project with non-deterministic behavior to explain how one symbol can represent multiple conceptual outcomes. PIN entry is the key example because it can be interpreted as success or failure.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>3. ε-NFA Usage</h3>
+                        <p>The ε-transition is used to describe automatic system movement, such as preparing the next state without consuming a visible user input. This is useful for explaining hidden control logic in the ATM.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>4. NFA to DFA Conversion</h3>
+                        <p>The project demonstrates subset construction by combining multiple NFA states into one DFA state. This removes non-determinism while preserving the accepted language.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>5. Regular Expression</h3>
+                        <p>The transaction pattern <strong>(card)(pin)(op)(withdraw)(exit)</strong> summarizes the legal symbol sequence. The project includes a regex checker to validate this workflow.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>6. Context-Free Grammar</h3>
+                        <p>The ATM sequence is also written as production rules. This gives a derivation-based representation and shows how a valid transaction string is generated step by step.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>7. PDA</h3>
+                        <p>Pushdown automata add stack memory. In this project, the stack stores session markers such as card and PIN, which helps explain memory beyond finite states.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>8. Turing Machine</h3>
+                        <p>The Turing Machine model uses a tape of ATM actions and a head that reads one cell at a time. This shows how the workflow can be interpreted using a general model of computation.</p>
+                    </div>
+                </div>
+                <div class="pill-row">
+                    <div class="status-pill">DFA: exact next state</div>
+                    <div class="status-pill">NFA: multiple next states</div>
+                    <div class="status-pill">ε-NFA: automatic transitions</div>
+                    <div class="status-pill">PDA: stack memory</div>
+                    <div class="status-pill">TM: tape + head</div>
+                </div>
+                <div class="info-card" style="margin-top: 20px;">
+                    <h3>Viva Answer</h3>
+                    <p>Initially, the project implemented a DFA for ATM operations. We extended it to include NFA and ε-NFA for non-deterministic behavior, demonstrated NFA to DFA conversion, represented the system using Regular Expressions and Context-Free Grammar, and further modeled computation using PDA and a basic Turing Machine.</p>
+                    <a class="theory-link" href="toc-explanation.html" target="_blank">Open the full standalone TOC explanation page</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FSM Logic Data
+        const states = ["q0", "q1", "q2", "q3", "q4", "q_dead"];
+        const alphabet = ["card", "pin", "op", "withdraw", "exit"];
+        const correctPin = "1234";
+
+        const stateConfig = {
+            "q0": { label: "q0: IDLE", msg: "WELCOME / INSERT CARD", cls: "" },
+            "q1": { label: "q1: AUTH", msg: "PIN REQUIRED", cls: "" },
+            "q2": { label: "q2: MENU", msg: "SELECT OPERATION", cls: "" },
+            "q3": { label: "q3: TASK", msg: "PROCESSING WITHDRAWAL...", cls: "" },
+            "q4": { label: "q4: CASH", msg: "DISPENSING... TAKE CASH", cls: "" },
+            "q_dead": { label: "q_dead: TRAP", msg: "SECURITY LOCKOUT / FAILURE", cls: "error-state" }
+        };
+
+        const transitions = {
+            q0: { card: "q1", exit: "q0" },
+            q1: { exit: "q0" }, 
+            q2: { op: "q3", exit: "q0" },
+            q3: { withdraw: "q4", exit: "q0" },
+            q4: { exit: "q0" },
+            q_dead: {} // Formal dead state: no outgoing transitions
+        };
+
+        const nfaTransitions = {
+            q0: { card: ["q1"] },
+            q1: { pin: ["q2", "q_dead"], exit: ["q0"] },
+            q2: { op: ["q3", "q_dead"], exit: ["q0"] },
+            q3: { withdraw: ["q4"], exit: ["q0"] },
+            q4: { exit: ["q0"] },
+            q_dead: {}
+        };
+
+        const epsilonTransitions = {
+            q1: { "ε": ["q2"] }
+        };
+
+        let currentState = "q0";
+        let network = null;
+        let automataMode = "DFA";
+        let stack = [];
+        let tape = ["card", "pin", "op", "withdraw", "exit"];
+        let head = 0;
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (window.event && window.event.target) window.event.target.classList.add('active');
+            if (id === 'interactive') {
+                if (!network) initGraph();
+                else network.redraw();
+            }
+        }
+
+        function showError(msg) {
+            const overlay = document.getElementById('errorOverlay');
+            overlay.innerText = `ERROR: ${msg}`;
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.style.display = 'none', 2500);
+        }
+
+        function handleInput(input) {
+            if (currentState === "q_dead") {
+                showError("SYSTEM TRAPPED. PERFORM HARDWARE RESET.");
+                return;
+            }
+
+            const prev = currentState;
+            const next = transitions[currentState] && transitions[currentState][input];
+
+            if (next) {
+                // Check for bypass attempts in q1
+                if (currentState === "q1" && input !== "exit") {
+                    currentState = "q_dead";
+                    showError("AUTH BYPASS ATTEMPT - SYSTEM TRAPPED");
+                } else {
+                    currentState = next;
+                }
+            } else {
+                // Any input not explicitly in transitions for current state is a violation
+                currentState = "q_dead";
+                showError("PROTOCOL VIOLATION - SYSTEM TRAPPED");
+            }
+
+            document.getElementById('transitionLog').innerText = `δ(${prev}, ${input}) → ${currentState}`;
+            updateUI();
+        }
+
+        function validatePin() {
+            const val = document.getElementById('pinInput').value;
+            const prev = currentState;
+            if (val === correctPin) {
+                currentState = "q2";
+                document.getElementById('transitionLog').innerText = `δ(${prev}, correct_pin) → q2`;
+            } else {
+                currentState = "q_dead";
+                document.getElementById('transitionLog').innerText = `δ(${prev}, wrong_pin) → q_dead`;
+                showError("INCORRECT PIN - SECURITY HALT");
+            }
+            document.getElementById('pinInput').value = "";
+            updateUI();
+        }
+
+        function updateUI() {
+            const cfg = stateConfig[currentState];
+            document.getElementById('stateLabel').innerText = cfg.label;
+            document.getElementById('screenMsg').innerText = cfg.msg;
+            document.getElementById('atmScreen').className = `screen ${cfg.cls}`;
+            document.getElementById('pinArea').style.display = (currentState === "q1" ? "block" : "none");
+            
+            renderMatrix();
+            calculateDeadStates();
+            if (network) network.selectNodes([currentState]);
+            syncAdvancedStatus();
+        }
+
+        function resetSystem() {
+            currentState = "q0";
+            document.getElementById('transitionLog').innerText = "δ(reboot, ε) → q0";
+            updateUI();
+        }
+
+        function renderMatrix() {
+            let h = "<table><thead><tr><th>δ</th>";
+            alphabet.forEach(a => h += `<th>${a.charAt(0)}</th>`);
+            h += "</tr></thead><tbody>";
+            
+            states.forEach(s => {
+                h += `<tr class="${s === currentState ? 'highlight-row' : ''}"><th>${s}</th>`;
+                alphabet.forEach(a => {
+                    let d = "q_dead";
+                    
+                    // Logic for branching notation in cells
+                    if (s === "q1" && a === "pin") d = "q2/dead";
+                    else if (s === "q2" && a === "op") d = "q3/dead";
+                    else if (s === "q3" && a === "withdraw") d = "q4/dead";
+                    else if (transitions[s] && transitions[s][a]) d = transitions[s][a];
+                    
+                    h += `<td>${d}</td>`;
+                });
+                h += "</tr>";
+            });
+            h += "</tbody></table>";
+            document.getElementById('matrixContainer').innerHTML = h;
+        }
+
+        function switchMode(mode) {
+            automataMode = mode;
+            const explanations = {
+                DFA: "DFA mode is active. Every valid ATM input leads to exactly one next state.",
+                NFA: "NFA mode is active. Inputs like pin can lead to multiple next states such as {q2, q_dead}.",
+                ENFA: "ε-NFA mode is active. The machine can branch and also move using ε-transitions without consuming input."
+            };
+            document.getElementById('advancedOutput').innerText = explanations[mode];
+            syncAdvancedStatus();
+            if (network) initGraph();
+        }
+
+        function syncAdvancedStatus() {
+            const labelMap = { DFA: "Mode: DFA", NFA: "Mode: NFA", ENFA: "Mode: ε-NFA" };
+            const label = document.getElementById('automataModeLabel');
+            if (label) label.innerText = labelMap[automataMode];
+        }
+
+        function epsilonClosure(stateSet) {
+            const closure = new Set(stateSet);
+            const queue = [...stateSet];
+
+            while (queue.length) {
+                const current = queue.shift();
+                const epsilonNext = epsilonTransitions[current] && epsilonTransitions[current]["ε"];
+                if (epsilonNext) {
+                    epsilonNext.forEach(nextState => {
+                        if (!closure.has(nextState)) {
+                            closure.add(nextState);
+                            queue.push(nextState);
+                        }
+                    });
+                }
+            }
+
+            return [...closure].sort();
+        }
+
+        function formatStateSet(stateSet) {
+            return `{${stateSet.join(", ")}}`;
+        }
+
+        function convertNFAtoDFA() {
+            const startState = automataMode === "ENFA" ? epsilonClosure(["q0"]) : ["q0"];
+            const queue = [startState];
+            const seen = new Set();
+            const dfaStates = [];
+            const transitionLines = [];
+
+            while (queue.length > 0) {
+                const current = queue.shift().sort();
+                const signature = current.join("|");
+                if (seen.has(signature)) continue;
+                seen.add(signature);
+                dfaStates.push(current);
+
+                alphabet.forEach(symbol => {
+                    const nextSet = new Set();
+                    current.forEach(state => {
+                        const options = nfaTransitions[state] && nfaTransitions[state][symbol];
+                        if (options) options.forEach(next => nextSet.add(next));
+                    });
+
+                    let result = [...nextSet].sort();
+                    if (automataMode === "ENFA" && result.length) result = epsilonClosure(result);
+
+                    if (result.length) {
+                        queue.push(result);
+                        transitionLines.push(`${formatStateSet(current)} --${symbol}--> ${formatStateSet(result)}`);
+                    }
+                });
+            }
+
+            document.getElementById('conversionOutput').innerText =
+                `Generated DFA states:\n${dfaStates.map(formatStateSet).join("\n")}\n\nTransitions:\n${transitionLines.join("\n") || "No derived transitions."}`;
+        }
+
+        function checkRegex(input) {
+            return /^cardpinopwithdrawexit$/.test(input);
+        }
+
+        function runRegexCheck() {
+            const input = document.getElementById('regexInput').value.trim();
+            const ok = checkRegex(input);
+            document.getElementById('regexOutput').innerText = ok
+                ? `Accepted. "${input}" matches the ATM regular expression.`
+                : `Rejected. "${input}" does not match (card)(pin)(op)(withdraw)(exit).`;
+        }
+
+        function renderStack() {
+            const host = document.getElementById('stackVisual');
+            if (!host) return;
+            host.innerHTML = stack.length
+                ? stack.map(item => `<div class="stack-item">${item}</div>`).join("")
+                : '<div class="stack-item">EMPTY</div>';
+        }
+
+        function pushdown(input) {
+            if (input === "card") stack.push("CARD");
+            if (input === "pin") stack.push("PIN");
+            if (input === "exit" && stack.length) stack.pop();
+            document.getElementById('pdaOutput').innerText = `Input: ${input}\nStack: [ ${stack.join(" -> ") || "EMPTY"} ]`;
+            renderStack();
+        }
+
+        function resetStack() {
+            stack = [];
+            document.getElementById('pdaOutput').innerText = "Stack simulator reset.";
+            renderStack();
+        }
+
+        function renderTape() {
+            const host = document.getElementById('tapeVisual');
+            if (!host) return;
+            host.innerHTML = tape.map((cell, index) => `<div class="tape-cell ${index === head ? 'active' : ''}">${cell}</div>`).join("");
+        }
+
+        function moveHead() {
+            const currentSymbol = tape[head];
+            if (currentSymbol === undefined) {
+                document.getElementById('tmOutput').innerText = "Head is beyond the defined tape. Reset to start again.";
+                return;
+            }
+            document.getElementById('tmOutput').innerText = `Reading: ${currentSymbol}\nHead position: ${head}\nAction: move right`;
+            head += 1;
+            renderTape();
+        }
+
+        function resetTape() {
+            tape = ["card", "pin", "op", "withdraw", "exit"];
+            head = 0;
+            document.getElementById('tmOutput').innerText = "Tape reset. Head is at the first symbol.";
+            renderTape();
+        }
+
+        function calculateDeadStates() {
+            const dead = [];
+            states.forEach(s => {
+                // A state is dead if it cannot reach the designated final state (q0)
+                if (s === "q0") return;
+                
+                let canReachFinal = false;
+                let visited = new Set();
+                let q = [s];
+                
+                while(q.length > 0) {
+                    let c = q.shift();
+                    if (c === "q0") { canReachFinal = true; break; }
+                    visited.add(c);
+                    
+                    const nextStates = transitions[c];
+                    if (nextStates) {
+                        for (let key in nextStates) {
+                            let next = nextStates[key];
+                            if (!visited.has(next)) q.push(next);
+                        }
+                    }
+                }
+                
+                if (!canReachFinal) dead.push(s);
+            });
+            document.getElementById('deadStatus').innerText = dead.length ? dead.join(", ") : "None";
+        }
+
+        function initGraph() {
+            const container = document.getElementById("graph");
+            const nodes = states.map(s => ({
+                id: s, label: s,
+                shape: s === "q0" ? 'doubleCircle' : 'circle',
+                color: { background: '#000', border: s === "q_dead" ? '#ff0077' : (s === "q0" ? '#00ffcc' : '#444') },
+                font: { color: '#fff', face: 'Orbitron' },
+                borderWidth: (s === "q0" || s === "q_dead") ? 3 : 1
+            }));
+            const edges = [
+                { from: 'q0', to: 'q1', label: 'card', arrows: 'to' },
+                { from: 'q1', to: 'q2', label: 'pin:1234', arrows: 'to', color: '#00ffcc' },
+                { from: 'q1', to: 'q_dead', label: 'pin:ERR', arrows: 'to', color: '#ff0077' },
+                { from: 'q2', to: 'q3', label: 'op', arrows: 'to', color: '#00ffcc' },
+                { from: 'q2', to: 'q_dead', label: 'ERR', arrows: 'to', color: '#ff0077', dashes: true },
+                { from: 'q3', to: 'q4', label: 'withdraw', arrows: 'to', color: '#00ffcc' },
+                { from: 'q3', to: 'q_dead', label: 'ERR', arrows: 'to', color: '#ff0077', dashes: true },
+                { from: 'q4', to: 'q0', label: 'exit', arrows: 'to' },
+                { from: 'q1', to: 'q0', label: 'exit', arrows: 'to' },
+                { from: 'q2', to: 'q0', label: 'exit', arrows: 'to' },
+                // System-wide Protocol Violations
+                { from: 'q0', to: 'q_dead', label: 'invalid', arrows: 'to', color: { opacity: 0.2 }, font: { size: 8 } }
+            ];
+            if (automataMode === "NFA" || automataMode === "ENFA") {
+                edges.push(
+                    { from: 'q1', to: 'q2', label: 'pin', arrows: 'to', color: '#ffcc00', width: 2 },
+                    { from: 'q1', to: 'q_dead', label: 'pin', arrows: 'to', color: '#ff0077', width: 2 },
+                    { from: 'q2', to: 'q3', label: 'op', arrows: 'to', color: '#ffcc00', width: 2 }
+                );
+            }
+            if (automataMode === "ENFA") {
+                edges.push(
+                    { from: 'q1', to: 'q2', label: 'ε', arrows: 'to', color: '#00ffcc', dashes: true, smooth: { type: 'curvedCW', roundness: 0.25 } }
+                );
+            }
+            network = new vis.Network(container, { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) }, {
+                physics: { enabled: true, barnesHut: { gravitationalConstant: -1500 } },
+                edges: { color: '#555', font: { size: 9, color: '#888', strokeWidth: 0, background: 'rgba(0,0,0,0.5)' } }
+            });
+            network.selectNodes([currentState]);
+        }
+
+        window.onload = () => {
+            initGraph();
+            updateUI();
+            renderStack();
+            renderTape();
+        };
+    </script>
+</body>
+</html>
