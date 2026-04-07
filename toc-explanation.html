@@ -121,8 +121,8 @@
 
         <div class="hero">
             <h2 style="margin-top:0; color:var(--neon-cyan); font-family:'Orbitron',sans-serif;">Project Overview</h2>
-            <p>This project models an ATM transaction system using concepts from Theory of Computation. The base flow starts from card insertion, moves to PIN verification, then operation selection, withdrawal, and exit. We first represented this as a DFA and then extended the same system using NFA, ε-NFA, Regular Expressions, Context-Free Grammar, Pushdown Automata, and a simple Turing Machine.</p>
-            <p class="quote">Initially, the project implemented a DFA for ATM operations. We extended it to include NFA and ε-NFA for non-deterministic behavior, demonstrated NFA to DFA conversion, represented the system using Regular Expressions and Context-Free Grammar, and further modeled computation using PDA and a basic Turing Machine.</p>
+            <p>This project models an ATM transaction system using concepts from Theory of Computation. The base flow starts from card insertion, moves to PIN verification, then operation selection, withdrawal, and exit. We first represented this as a DFA and then extended the same system using NFA, &epsilon;-NFA, Regular Expressions, Context-Free Grammar, Pushdown Automata, a simple Turing Machine, lock-state control, timeout recovery, transaction logging, and DFA minimization.</p>
+            <p class="quote">Initially, the project implemented a DFA for ATM operations. We then added a lock state for repeated PIN failures, inactivity timeout reset, timestamped transition logging, NFA and &epsilon;-NFA behavior, NFA to DFA conversion, DFA minimization, Regular Expressions, Context-Free Grammar, PDA, and a basic Turing Machine.</p>
             <p><a href="final2.html">Back to the main interactive project</a></p>
         </div>
 
@@ -135,47 +135,57 @@ q1 --pin(correct)--> q2
 q2 --op--> q3
 q3 --withdraw--> q4
 q4 --exit--> q0</pre>
+                <p>The simulator also keeps a trap state <code>q_dead</code> for protocol violations and a lock state <code>q_lock</code> for repeated PIN failures.</p>
             </div>
 
             <div class="section">
                 <h2>2. NFA</h2>
-                <p>An NFA allows multiple possible next states for the same input. We used this idea to explain ATM branching behavior such as PIN acceptance versus security failure.</p>
-                <pre>q1 --pin--> {q2, q_dead}
+                <p>An NFA allows multiple possible next states for the same input. We used this idea to explain ATM branching behavior such as PIN acceptance, retry, lock, or security failure.</p>
+                <pre>q1 --pin--> {q2, q1, q_lock, q_dead}
 q2 --op--> {q3, q_dead}</pre>
             </div>
 
             <div class="section">
-                <h2>3. ε-NFA</h2>
-                <p>An ε-NFA includes epsilon transitions, which move the automaton without consuming any input. In the ATM model, this is used to explain automatic internal movement between stages.</p>
-                <pre>q1 --ε--> q2</pre>
+                <h2>3. &epsilon;-NFA</h2>
+                <p>An &epsilon;-NFA includes epsilon transitions, which move the automaton without consuming any input. In the ATM model, this is used to explain automatic internal movement between stages.</p>
+                <pre>q1 --&epsilon;--> q2</pre>
             </div>
 
             <div class="section">
                 <h2>4. NFA to DFA Conversion</h2>
                 <p>We used subset construction to convert multiple NFA states into a single DFA state. This removes non-determinism while preserving accepted strings.</p>
                 <pre>{q1, q2} becomes one DFA state
+{q1, q_lock} becomes another DFA state
 {q2, q_dead} becomes another DFA state</pre>
             </div>
 
             <div class="section">
-                <h2>5. Regular Expression</h2>
+                <h2>5. DFA Minimization</h2>
+                <p>After building the DFA, we apply partition refinement to study whether any states can be merged. This demonstrates formal optimization of the automaton.</p>
+                <pre>Initial partition: {q0} and {q1, q2, q3, q4, q_lock, q_dead}
+Refine by transition behavior
+Keep q_lock separate from q_dead because q_lock can recover</pre>
+            </div>
+
+            <div class="section">
+                <h2>6. Regular Expression</h2>
                 <p>The ATM workflow can be written as a regular expression describing the valid sequence of symbols.</p>
                 <pre>(card)(pin)(op)(withdraw)(exit)</pre>
                 <p>In the project, we added a regex checker to test whether a user-entered sequence matches this exact pattern.</p>
             </div>
 
             <div class="section">
-                <h2>6. Context-Free Grammar</h2>
+                <h2>7. Context-Free Grammar</h2>
                 <p>CFG represents the ATM flow as production rules. This shows the same language from a grammar perspective rather than only a state-transition perspective.</p>
-                <pre>S → card A
-A → pin B
-B → op C
-C → withdraw D
-D → exit</pre>
+                <pre>S -> card A
+A -> pin B
+B -> op C
+C -> withdraw D
+D -> exit</pre>
             </div>
 
             <div class="section">
-                <h2>7. PDA</h2>
+                <h2>8. PDA</h2>
                 <p>A Pushdown Automaton uses a stack. We used stack operations to explain memory-like behavior in the ATM, such as recording session events like card insertion and PIN entry.</p>
                 <pre>Input: card  => push CARD
 Input: pin   => push PIN
@@ -183,18 +193,26 @@ Input: exit  => pop stack</pre>
             </div>
 
             <div class="section">
-                <h2>8. Turing Machine</h2>
+                <h2>9. Turing Machine</h2>
                 <p>The Turing Machine is the most general computation model. We represented ATM inputs on a tape and moved the head one step to the right after each read.</p>
                 <pre>[card] [pin] [op] [withdraw] [exit]
   ^
 Head reads and moves right</pre>
             </div>
+
+            <div class="section">
+                <h2>10. Security and Recovery Extensions</h2>
+                <p>The updated simulator also demonstrates industrial workflow controls. These features help connect the formal automaton with practical ATM safety rules.</p>
+                <pre>3 wrong PIN attempts  -> q_lock
+No input for 30 sec   -> q0
+Each transition       -> timestamped log entry</pre>
+            </div>
         </div>
 
         <div class="summary" style="margin-top:20px;">
             <h2>How We Used TOC in the Project</h2>
-            <p>DFA was used for the main ATM transaction simulator. NFA and ε-NFA were added to explain branching and automatic transitions. NFA to DFA conversion was added to show formal conversion of non-deterministic behavior into deterministic behavior. Regular Expression and CFG were used to describe the ATM language formally. PDA was used to simulate stack memory, and a Turing Machine section was added to show tape-based computation.</p>
-            <p>This makes the project strong both technically and academically because it does not only show one automata model. It connects multiple TOC topics to one real-life system in a structured and easy-to-explain way.</p>
+            <p>DFA was used for the main ATM transaction simulator. NFA and &epsilon;-NFA were added to explain branching and automatic transitions. NFA to DFA conversion and DFA minimization were added to show formal construction and optimization. Regular Expression and CFG were used to describe the ATM language formally. PDA was used to simulate stack memory, and a Turing Machine section was added to show tape-based computation.</p>
+            <p>The project also includes practical security extensions such as a lock state after three incorrect PIN attempts, automatic timeout reset to q0, and timestamped transition logging. This makes the project strong both technically and academically because it connects automata theory with real ATM control rules in a structured and easy-to-explain way.</p>
         </div>
     </div>
 </body>
