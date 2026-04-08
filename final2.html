@@ -110,6 +110,7 @@
         .hero-blurb {
             width: min(760px, 100%);
             margin: 16px auto 0;
+            font-family: 'Montserrat', sans-serif;
             font-size: 0.95rem;
             line-height: 1.7;
             color: #b5c7c5;
@@ -319,6 +320,25 @@
         button.atm-btn.reset-btn { border-color: rgba(255, 91, 143, 0.32); color: #ff8fb2; grid-column: span 2; margin-top: 5px; }
         button.atm-btn.reset-btn:hover { background: linear-gradient(135deg, #ff6d9f, #ff9fbc); color: #1d0410; box-shadow: 0 14px 24px rgba(255, 91, 143, 0.2); }
 
+        /* Emulator-specific typography across all phases */
+        #interactive .screen,
+        #interactive input[type="password"],
+        #interactive .controls .atm-btn,
+        #phase2 .mini-input,
+        #phase2 .phase-codebox,
+        #phase2 .phase-result,
+        #phase2 #cfgTree,
+        #phase3 .mini-input,
+        #phase3 .phase-id-value,
+        #phase3 .stack-item,
+        #phase4 .mini-input,
+        #phase4 .tm-badge span,
+        #phase4 .tape-cell,
+        #phase4 #tmPhaseOutput,
+        #phase4 .atm-btn {
+            font-family: 'Montserrat', sans-serif;
+        }
+
         /* Diagnostic List */
         .diag-item {
             padding: 10px;
@@ -346,7 +366,7 @@
         }
 
         .arch-card h4 { margin: 0 0 10px 0; color: var(--neon-yellow); font-size: 0.85rem; font-family: 'Orbitron', sans-serif; }
-        .arch-card p { margin: 0; font-size: 0.79rem; line-height: 1.6; color: var(--text-dim); }
+        .arch-card p { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 0.79rem; line-height: 1.6; color: var(--text-dim); }
 
         .software-stack { display: flex; flex-direction: column; gap: 5px; }
         .stack-layer { padding: 18px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 0.76rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.6px; }
@@ -387,6 +407,7 @@
 
         .info-card p {
             margin: 0;
+            font-family: 'Montserrat', sans-serif;
             color: var(--text-dim);
             font-size: 0.8rem;
             line-height: 1.6;
@@ -423,6 +444,225 @@
             white-space: pre-line;
         }
 
+        .phase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        #phase2 .phase-grid {
+            align-items: stretch;
+        }
+
+        #phase2 .phase-accent {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #phase2 .phase-stack {
+            flex: 1;
+            align-content: start;
+        }
+
+        .phase-accent {
+            border: 1px solid rgba(115, 255, 225, 0.14);
+            border-radius: 20px;
+            background:
+                radial-gradient(circle at top right, rgba(102, 169, 255, 0.12), transparent 45%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.012)),
+                rgba(8, 18, 25, 0.92);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .phase-card-title {
+            margin: 0 0 16px 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.8px;
+            text-shadow: 0 0 14px rgba(115, 255, 225, 0.2);
+        }
+
+        .phase-purple { color: var(--neon-cyan); }
+        .phase-green { color: #9dffbf; }
+        .phase-amber { color: var(--neon-yellow); }
+
+        .phase-stack {
+            display: grid;
+            gap: 16px;
+        }
+
+        .phase-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            font-size: 0.64rem;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .phase-hint {
+            margin: 8px 0 0 0;
+            color: #7f9593;
+            font-size: 0.7rem;
+            font-style: italic;
+        }
+
+        .phase-codebox {
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(102, 169, 255, 0.2);
+            background: rgba(3, 12, 16, 0.82);
+            color: #b9cecc;
+            font-size: 0.75rem;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        .phase-result {
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            border-radius: 14px;
+            padding: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(5, 14, 18, 0.9);
+            color: var(--neon-cyan);
+        }
+
+        .phase-result.accept {
+            color: #83ffb4;
+            border-color: rgba(131, 255, 180, 0.35);
+            background: rgba(8, 32, 18, 0.72);
+        }
+
+        .phase-result.reject {
+            color: #ff9fbc;
+            border-color: rgba(255, 91, 143, 0.32);
+            background: rgba(37, 8, 18, 0.78);
+        }
+
+        .phase-derive {
+            min-height: 260px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .phase-id-card {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(131, 255, 180, 0.2);
+            background: rgba(20, 54, 34, 0.15);
+        }
+
+        .phase-id-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.65rem;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            color: #83ffb4;
+        }
+
+        .phase-id-value {
+            color: #a5ffc9;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        .stack-tower {
+            min-height: 320px;
+            width: min(260px, 100%);
+            margin: 0 auto;
+            padding: 18px;
+            border-left: 1px dashed rgba(131, 255, 180, 0.18);
+            border-right: 1px dashed rgba(131, 255, 180, 0.18);
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+
+        #pdaStackContainer {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .stack-bottom {
+            padding: 14px;
+            text-align: center;
+            border-radius: 14px;
+            border: 1px solid rgba(131, 255, 180, 0.3);
+            background: rgba(131, 255, 180, 0.08);
+            color: #83ffb4;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.72rem;
+        }
+
+        .tm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+
+        .tm-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tm-badge {
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(115, 255, 225, 0.16);
+            background: rgba(115, 255, 225, 0.05);
+        }
+
+        .tm-badge strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-dim);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .tm-badge span {
+            color: #ffd166;
+            font-family: monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .tm-tape-shell {
+            overflow-x: auto;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            margin-bottom: 22px;
+        }
+
+        .tm-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
         .mini-input {
             width: 100%;
             background: rgba(255, 255, 255, 0.04);
@@ -432,6 +672,13 @@
             border-radius: 12px;
             margin-top: 12px;
             font-family: 'Montserrat', sans-serif;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .mini-input:focus {
+            border-color: rgba(115, 255, 225, 0.42);
+            box-shadow: 0 0 0 3px rgba(115, 255, 225, 0.12);
         }
 
         .mode-indicator {
@@ -452,8 +699,8 @@
             padding: 10px 12px;
             text-align: center;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(115, 255, 225, 0.14);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
             font-size: 0.75rem;
         }
 
@@ -608,29 +855,15 @@
         <header>
             <h1 class="title">ATM AUTOMATA</h1>
             <div class="subtitle">MADE BY-TRINABHA DIXIT AND BHARGAV MAHANTA</div>
-            <div class="header-stats">
-                <div class="header-stat">
-                    <strong>Core Model</strong>
-                    <span>DFA + NFA + epsilon-NFA</span>
-                </div>
-                <div class="header-stat">
-                    <strong>Security Layer</strong>
-                    <span>Lock state, timeout, logs</span>
-                </div>
-                <div class="header-stat">
-                    <strong>Academic Scope</strong>
-                    <span>Regex, CFG, PDA, TM</span>
-                </div>
-            </div>
         </header>
 
         <nav class="nav-tabs">
-            <button class="tab-btn active" onclick="showTab('interactive')">Console & FSM</button>
+            <button class="tab-btn active" onclick="showTab('interactive')">Phase 1: DFA</button>
+            <button class="tab-btn" onclick="showTab('phase2')">Phase 2: Regex & CFG</button>
+            <button class="tab-btn" onclick="showTab('phase3')">Phase 3: PDA Memory</button>
+            <button class="tab-btn" onclick="showTab('phase4')">Phase 4: TM & Decidability</button>
             <button class="tab-btn" onclick="showTab('process')">Process Guide</button>
             <button class="tab-btn" onclick="showTab('hardware')">Hardware</button>
-            <button class="tab-btn" onclick="showTab('software')">Software Logic</button>
-            <button class="tab-btn" onclick="showTab('diagnostics')">Error Segments</button>
-            <button class="tab-btn" onclick="showTab('design')">Challenges</button>
         </nav>
 
         <!-- Tab 1: Interactive Console -->
@@ -858,78 +1091,109 @@ D -> exit</pre>
                 </div>
             </div>
         </div>
-        <!-- Tab 3: Software -->
-        <div id="software" class="tab-content">
-            <div class="grid-layout">
-                <div class="panel">
-                    <div class="section-title">Software Architecture Stack</div>
-                    <div class="software-stack">
-                        <div class="stack-layer layer-app"><strong>APPLICATION:</strong> Transaction State Manager, UI, Security Logic</div>
-                        <div class="stack-layer layer-mid"><strong>MIDDLEWARE:</strong> XFS/CEN API - Hardware Abstraction Layer</div>
-                        <div class="stack-layer layer-os"><strong>BASE:</strong> Hardened OS (Windows/Linux), Drivers, TCP/IP Stack</div>
+        <!-- Tab 4: Phase 2 -->
+        <div id="phase2" class="tab-content">
+            <div class="phase-grid">
+                <div class="panel phase-accent">
+                    <h3 class="phase-card-title phase-purple">Custom Language Engine</h3>
+                    <div class="phase-stack">
+                        <div>
+                            <label class="phase-label" for="regexPattern">Define Acceptance Pattern (Regex)</label>
+                            <input class="mini-input" id="regexPattern" value="^card pin (withdraw|balance) exit$" placeholder="Enter regex pattern">
+                            <p class="phase-hint">Example: ^card pin+ withdraw exit$</p>
+                        </div>
+                        <div>
+                            <label class="phase-label" for="regexInputSeq">Input Sequence To Verify</label>
+                            <input class="mini-input" id="regexInputSeq" placeholder="e.g. card pin withdraw exit">
+                        </div>
+                        <div id="regexResult" class="phase-result">Regex validator ready.</div>
+                        <button class="atm-btn" onclick="validateRegex()">Check Language Membership</button>
                     </div>
                 </div>
-                <div class="panel">
-                    <div class="section-title">Transaction Logic</div>
-                    <ul style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.8;">
-                        <li><strong>Atomicity:</strong> Transactions are all-or-nothing to prevent balance mismatches.</li>
-                        <li><strong>ISO 8583:</strong> Standard messaging protocol for banking host communication.</li>
-                        <li><strong>Timeout Recovery:</strong> If no input arrives within 30 seconds, the simulator resets to q0 and records the event.</li>
-                        <li><strong>Three-Attempt Lock:</strong> Repeated PIN failures move the machine into q_lock to model industrial lockout policy.</li>
-                    </ul>
+
+                <div class="panel phase-accent">
+                    <h3 class="phase-card-title phase-purple">Context-Free Derivation</h3>
+                    <div class="phase-codebox" id="cfgDisplay">S -> card A
+A -> pin B
+B -> withdraw C | balance C
+C -> exit</div>
+                    <div id="cfgTree" class="advanced-output phase-derive">Awaiting string derivation...</div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 4: Diagnostics -->
-        <div id="diagnostics" class="tab-content">
-            <div class="panel">
-                <div class="section-title">Diagnostic Error Segments</div>
-                <div class="arch-grid">
-                    <div class="arch-card">
-                        <h4>Trap State (Automata)</h4>
-                        <p>Occurs when an invalid sequence or out-of-order operation is entered. The system moves to q_dead and requires a hard reset.</p>
-                        <span class="error-tag">Logic Failure</span>
+        <!-- Tab 5: Phase 3 -->
+        <div id="phase3" class="tab-content">
+            <div class="grid-layout">
+                <div class="panel phase-accent">
+                    <h3 class="phase-card-title phase-green">PDA Logic (Stack Control)</h3>
+                    <div class="phase-stack">
+                        <div>
+                            <label class="phase-label" for="pdaCustomSymbol">Push Custom Alphabet Symbol</label>
+                            <input class="mini-input" id="pdaCustomSymbol" maxlength="12" placeholder="e.g. CARD, AUTH, TX">
+                        </div>
+                        <div class="advanced-actions">
+                            <button class="atm-btn" onclick="pdaAction('PUSH', document.getElementById('pdaCustomSymbol').value || 'TOKEN')">Push</button>
+                            <button class="atm-btn" onclick="pdaAction('POP', '')">Pop Symbol (Rollback)</button>
+                            <button class="atm-btn" onclick="resetPDA()">Clear Stack</button>
+                        </div>
+                        <div class="phase-id-card">
+                            <strong>Instantaneous Description (ID)</strong>
+                            <div id="pdaInstant" class="phase-id-value">(q0, w, Z0)</div>
+                        </div>
                     </div>
-                    <div class="arch-card">
-                        <h4>Lock State</h4>
-                        <p>After three incorrect PIN attempts the ATM moves to q_lock. Timeout recovery or hardware reset starts a fresh session.</p>
-                        <span class="error-tag">Security Control</span>
-                    </div>
-                    <div class="arch-card">
-                        <h4>I/O Mechanical Jam</h4>
-                        <p>Sensors in the dispenser detect stuck notes. The machine halts and emits a failure event in the transaction log.</p>
-                        <span class="error-tag">Hardware Fault</span>
-                    </div>
-                    <div class="arch-card">
-                        <h4>HSM Tamper Event</h4>
-                        <p>Internal hardware sensors detect physical case breach. Encryption keys would be erased immediately in a production system.</p>
-                        <span class="error-tag">Security Breach</span>
-                    </div>
-                    <div class="arch-card">
-                        <h4>Network Timeout</h4>
-                        <p>If host communication exceeds the safe timeout budget, the model resets the transaction to avoid inconsistent state.</p>
-                        <span class="error-tag">Comm Error</span>
+                </div>
+
+                <div class="panel phase-accent">
+                    <h3 class="phase-card-title phase-green" style="text-align:center;">Visualized Stack Memory (&Gamma;)</h3>
+                    <div class="stack-tower">
+                        <div class="stack-bottom">Z0 (BOTTOM OF STACK)</div>
+                        <div id="pdaStackContainer" class="stack-visual"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Tab 5: Design Challenges -->
-        <div id="design" class="tab-content">
-            <div class="panel">
-                <div class="section-title">Design Constraints</div>
-                <div class="arch-grid">
-                    <div class="arch-card" style="border-left: 4px solid var(--neon-cyan);">
-                        <h4>Availability</h4>
-                        <p>Must maintain 99.9% uptime despite power fluctuations or network instability.</p>
+
+        <!-- Tab 6: Phase 4 -->
+        <div id="phase4" class="tab-content">
+            <div class="panel phase-accent">
+                <div class="tm-header">
+                    <div>
+                        <h3 class="phase-card-title phase-amber">Turing Ledger Decider</h3>
+                        <p style="margin:0; color:var(--text-dim); font-size:0.78rem;">Formal verification of transaction solvability using infinite tape modeling.</p>
                     </div>
-                    <div class="arch-card" style="border-left: 4px solid var(--neon-pink);">
-                        <h4>Robustness</h4>
-                        <p>Hardware must withstand extreme heat, dust, and physical vandalism attempts.</p>
+                    <div class="tm-badges">
+                        <div class="tm-badge">
+                            <strong>TM State</strong>
+                            <span id="tmPhaseState">q_IDLE</span>
+                        </div>
+                        <div class="tm-badge">
+                            <strong>Head Pos</strong>
+                            <span id="tmHeadPos">2</span>
+                        </div>
                     </div>
-                    <div class="arch-card" style="border-left: 4px solid var(--neon-yellow);">
-                        <h4>Compliance</h4>
-                        <p>Adherence to PCI-DSS, EMV Level 1/2, and regional banking regulations.</p>
+                </div>
+
+                <div class="tm-tape-shell">
+                    <div class="tape-visual" id="tmTape"></div>
+                </div>
+
+                <div class="tm-controls">
+                    <div class="info-card" style="background: rgba(255,255,255,0.02);">
+                        <h3>Custom Ledger Input</h3>
+                        <label class="phase-label" for="tmBalance">ATM Cash Balance</label>
+                        <input class="mini-input" id="tmBalance" type="number" value="5000" placeholder="ATM cash balance">
+                        <label class="phase-label" for="tmRequest" style="margin-top: 16px;">User Withdrawal</label>
+                        <input class="mini-input" id="tmRequest" type="number" value="2000" placeholder="User withdrawal">
+                        <div class="advanced-actions" style="margin-top:16px;">
+                            <button class="atm-btn" id="tmRunButton" onclick="runTM()">Verify and Execute TM</button>
+                            <button class="atm-btn" onclick="simulateTimeout()">Simulate Halting Problem</button>
+                        </div>
+                    </div>
+
+                    <div class="info-card" style="background: rgba(255, 209, 102, 0.04); border-color: rgba(255, 209, 102, 0.18);">
+                        <h3>TM Computation Log</h3>
+                        <div class="advanced-output" id="tmPhaseOutput">Waiting for input tape parameters...</div>
                     </div>
                 </div>
             </div>
@@ -985,10 +1249,9 @@ D -> exit</pre>
         let network = null;
         let automataMode = "DFA";
         let stack = [];
-        let pdaState = "q_start";
-        let tape = ["card", "pin", "op", "withdraw", "exit"];
-        let head = 0;
-        let tmState = "q_start";
+        let tmTape = ["B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"];
+        let headPos = 2;
+        let tmPhaseState = "q_IDLE";
         let pinAttempts = 0;
         let logs = [];
         let timeoutDeadline = Date.now() + TIMEOUT_MS;
@@ -1304,96 +1567,142 @@ D -> exit</pre>
                 `Partition refinement result:\n${lines.join('\n')}\n\nMinimized DFA state count: ${partitions.length}\nObservation: q_dead and q_lock remain distinct because q_lock has recovery behavior while q_dead is a pure trap state.`;
         }
 
-        function checkRegex(input) {
-            return /^cardpinopwithdrawexit$/.test(input);
+        function validateRegex() {
+            const input = document.getElementById('regexInputSeq');
+            const pattern = document.getElementById('regexPattern');
+            const resultEl = document.getElementById('regexResult');
+            const treeEl = document.getElementById('cfgTree');
+            if (!input || !pattern || !resultEl || !treeEl) return;
+
+            const inputValue = input.value.trim();
+            const patternValue = pattern.value.trim();
+
+            try {
+                const regex = new RegExp(patternValue);
+                if (regex.test(inputValue)) {
+                    resultEl.className = 'phase-result accept';
+                    resultEl.innerText = `Accepted: "${inputValue}" belongs to the language defined by ${patternValue}`;
+                    const tokens = inputValue.split(/\s+/).filter(Boolean);
+                    const derivation = ['S (START)'];
+
+                    if (tokens[0] === 'card') derivation.push('↓\ncard A');
+                    if (tokens[1] === 'pin') derivation.push('↓\ncard pin B');
+                    if (tokens[2] === 'withdraw' || tokens[2] === 'balance') derivation.push(`↓\ncard pin ${tokens[2]} C`);
+                    if (tokens[3] === 'exit') derivation.push(`↓\ncard pin ${tokens[2] || 'withdraw'} exit`);
+
+                    treeEl.innerText = `Leftmost derivation:\n\n${derivation.join('\n\n')}\n\nTokens: ${tokens.join(' | ')}`;
+                } else {
+                    resultEl.className = 'phase-result reject';
+                    resultEl.innerText = `Rejected: "${inputValue}" is not a member of the language defined by ${patternValue}`;
+                    treeEl.innerText = 'No derivation path available for the current string.';
+                }
+            } catch (error) {
+                resultEl.className = 'phase-result reject';
+                resultEl.innerText = 'Invalid regular expression provided.';
+                treeEl.innerText = 'Fix the regex pattern to generate a valid derivation.';
+            }
         }
 
-        function runRegexCheck() {
-            const input = document.getElementById('regexInput').value.trim();
-            const ok = checkRegex(input);
-            document.getElementById('regexOutput').innerText = ok
-                ? `Accepted. "${input}" matches the ATM regular expression.`
-                : `Rejected. "${input}" does not match (card)(pin)(op)(withdraw)(exit).`;
-        }
-
-        function runCfgDerivation() {
-            document.getElementById('cfgOutput').innerText =
-                `Leftmost derivation:\nS\n=> card A\n=> card pin B\n=> card pin op C\n=> card pin op withdraw D\n=> card pin op withdraw exit\n\nGenerated string: card pin op withdraw exit`;
-        }
-
-        function renderStack() {
-            const host = document.getElementById('stackVisual');
+        function renderPDAStack() {
+            const host = document.getElementById('pdaStackContainer');
             if (!host) return;
             host.innerHTML = stack.length
-                ? stack.map(item => `<div class="stack-item">${item}</div>`).join('')
-                : '<div class="stack-item">EMPTY</div>';
+                ? [...stack].map(item => `<div class="stack-item">${item}</div>`).join('')
+                : '';
         }
 
-        function pushdown(input) {
-            const transitions = {
-                q_start: { card: { next: "q_card", push: "CARD" } },
-                q_card: { pin: { next: "q_auth", push: "PIN" } },
-                q_auth: { op: { next: "q_op", push: "OP" } },
-                q_op: { withdraw: { next: "q_cash", push: "WITHDRAW" } },
-                q_cash: { exit: { next: "q_accept", pop: true } }
-            };
-
-            const step = transitions[pdaState] && transitions[pdaState][input];
-
-            if (!step) {
-                pdaState = "q_reject";
-                document.getElementById('pdaOutput').innerText = `Input: ${input}\nPDA State: ${pdaState}\nStack: [ ${stack.join(' -> ') || 'EMPTY'} ]\nAcceptance: Rejected due to invalid PDA transition`;
-                renderStack();
-                return;
+        function pdaAction(type, label) {
+            const cleanLabel = label.trim().toUpperCase();
+            if (type === 'PUSH') {
+                if (!cleanLabel) return;
+                stack.push(cleanLabel);
+                const symbolInput = document.getElementById('pdaCustomSymbol');
+                if (symbolInput) symbolInput.value = '';
+            } else if (stack.length > 0) {
+                stack.pop();
             }
 
-            if (step.push) stack.push(step.push);
-            if (step.pop && stack.length) stack.pop();
-            pdaState = step.next;
-            document.getElementById('pdaOutput').innerText = `Input: ${input}\nPDA State: ${pdaState}\nStack: [ ${stack.join(' -> ') || 'EMPTY'} ]\nAcceptance: ${pdaState === 'q_accept' ? 'Accepted by final state' : 'Not yet accepted'}`;
-            renderStack();
+            const pdaStateLabel = stack.length === 0 ? 'q0' : 'q_active';
+            const stackString = stack.length ? [...stack].reverse().join(' ') + ' Z0' : 'Z0';
+            const instant = document.getElementById('pdaInstant');
+            if (instant) instant.innerText = `(${pdaStateLabel}, w, ${stackString})`;
+            renderPDAStack();
         }
 
-        function resetStack() {
+        function resetPDA() {
             stack = [];
-            pdaState = "q_start";
-            document.getElementById('pdaOutput').innerText = 'Stack simulator reset.\nPDA State: q_start\nStack: [ EMPTY ]';
-            renderStack();
+            const instant = document.getElementById('pdaInstant');
+            if (instant) instant.innerText = '(q0, w, Z0)';
+            renderPDAStack();
         }
 
-        function renderTape() {
-            const host = document.getElementById('tapeVisual');
+        function renderPhaseTape() {
+            const host = document.getElementById('tmTape');
             if (!host) return;
-            host.innerHTML = tape.map((cell, index) => `<div class="tape-cell ${index === head ? 'active' : ''}">${cell}</div>`).join('');
+            host.innerHTML = tmTape.map((cell, index) => `<div class="tape-cell ${index === headPos ? 'active' : ''}">${cell}</div>`).join('');
+            const headLabel = document.getElementById('tmHeadPos');
+            if (headLabel) headLabel.innerText = headPos;
         }
 
-        function moveHead() {
-            const expectedTape = ["card", "pin", "op", "withdraw", "exit"];
-            const currentSymbol = tape[head];
-            if (currentSymbol === undefined) {
-                tmState = tmState === "q_read" ? "q_accept" : tmState;
-                document.getElementById('tmOutput').innerText = `State: ${tmState}\nHead is beyond the defined tape.\nComputation halted.`;
+        async function runTM() {
+            const balanceEl = document.getElementById('tmBalance');
+            const requestEl = document.getElementById('tmRequest');
+            const output = document.getElementById('tmPhaseOutput');
+            const stateEl = document.getElementById('tmPhaseState');
+            const runBtn = document.getElementById('tmRunButton');
+            if (!balanceEl || !requestEl || !output || !stateEl || !runBtn) return;
+
+            const balance = balanceEl.value.trim();
+            const request = requestEl.value.trim();
+            if (!balance || !request) {
+                output.innerText = 'Please provide both ATM balance and user withdrawal.';
                 return;
             }
-            tmState = "q_read";
-            if (currentSymbol !== expectedTape[head]) {
-                tmState = "q_reject";
-                document.getElementById('tmOutput').innerText = `State: ${tmState}\nReading: ${currentSymbol}\nHead position: ${head}\nAction: reject and halt`;
-                return;
+
+            runBtn.disabled = true;
+            tmTape = ['B', 'B', ...balance.split(''), 'B', ...request.split(''), 'B', 'B'];
+            headPos = 2;
+            tmPhaseState = 'q_READ_BAL';
+            stateEl.innerText = tmPhaseState;
+            renderPhaseTape();
+
+            output.innerHTML = 'TM initialized. Scanning account ledger segment...';
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            headPos = 2 + balance.length;
+            renderPhaseTape();
+            output.innerHTML += '<br>Head moved to request segment...';
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            headPos = tmTape.length - 2;
+            tmPhaseState = 'q_COMPARE';
+            stateEl.innerText = tmPhaseState;
+            renderPhaseTape();
+            output.innerHTML += `<br>Formal check: (S_${balance} >= S_${request})`;
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            if (parseInt(balance, 10) >= parseInt(request, 10)) {
+                tmPhaseState = 'q_ACCEPT';
+                stateEl.innerText = tmPhaseState;
+                output.innerHTML += '<br>Verdict: Accept. The withdrawal is decidable and executable.';
+                tmTape[headPos] = 'OK';
+            } else {
+                tmPhaseState = 'q_REJECT';
+                stateEl.innerText = tmPhaseState;
+                output.innerHTML += '<br>Verdict: Reject. The requested amount exceeds the available balance.';
             }
-            const nextState = head === expectedTape.length - 1 ? "q_accept" : "q_read";
-            document.getElementById('tmOutput').innerText = `State: ${tmState}\nReading: ${currentSymbol}\nHead position: ${head}\nAction: move right\nNext state: ${nextState}`;
-            head += 1;
-            tmState = nextState;
-            renderTape();
+
+            renderPhaseTape();
+            runBtn.disabled = false;
         }
 
-        function resetTape() {
-            tape = ['card', 'pin', 'op', 'withdraw', 'exit'];
-            head = 0;
-            tmState = "q_start";
-            document.getElementById('tmOutput').innerText = 'Tape reset. Head is at the first symbol.\nState: q_start';
-            renderTape();
+        function simulateTimeout() {
+            const output = document.getElementById('tmPhaseOutput');
+            const stateEl = document.getElementById('tmPhaseState');
+            if (stateEl) stateEl.innerText = 'q_HALT_LOOP';
+            if (output) output.innerHTML = 'Halting problem illustration: the machine entered a non-decidable loop, so a guaranteed finite termination state is not available.';
         }
 
         function calculateDeadStates() {
@@ -1492,6 +1801,8 @@ D -> exit</pre>
         window.onload = () => {
             initGraph();
             updateUI();
+            resetPDA();
+            renderPhaseTape();
             logEvent('BOOT', 'System initialized in q0 and ready for ATM input.');
             startTimeoutTicker();
             updateTimeoutStatus();
