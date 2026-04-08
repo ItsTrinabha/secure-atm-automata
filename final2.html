@@ -606,10 +606,8 @@
 
     <div class="container">
         <header>
-            <div class="eyebrow">Secure ATM Workflow Simulator</div>
             <h1 class="title">ATM AUTOMATA</h1>
             <div class="subtitle">MADE BY-TRINABHA DIXIT AND BHARGAV MAHANTA</div>
-            <p class="hero-blurb">A polished Theory of Computation project interface that turns ATM workflow validation into a live cyber-console, combining formal automata, industrial safety rules, and interactive visual analysis.</p>
             <div class="header-stats">
                 <div class="header-stat">
                     <strong>Core Model</strong>
@@ -633,8 +631,6 @@
             <button class="tab-btn" onclick="showTab('software')">Software Logic</button>
             <button class="tab-btn" onclick="showTab('diagnostics')">Error Segments</button>
             <button class="tab-btn" onclick="showTab('design')">Challenges</button>
-            <button class="tab-btn" onclick="showTab('advanced')">Advanced TOC</button>
-            <button class="tab-btn" onclick="showTab('theory')">TOC Usage</button>
         </nav>
 
         <!-- Tab 1: Interactive Console -->
@@ -643,7 +639,7 @@
                 <div class="panel">
                     <div class="section-title">Terminal Emulator <span style="font-size:0.6rem; opacity:0.6">PIN: 1234</span></div>
                     <div class="screen" id="atmScreen">
-                        <div style="font-size: 0.6rem; opacity: 0.7;" id="stateLabel">q0: IDLE</div>
+                        <div style="font-size: 1.05rem; opacity: 0.85;" id="stateLabel">q0: IDLE</div>
                         <div id="screenMsg" style="font-weight: bold; margin: 10px 0;">WELCOME / INSERT CARD</div>
                         <div class="pin-input-area" id="pinArea">
                             <input type="password" id="pinInput" maxlength="4" placeholder="****">
@@ -657,7 +653,7 @@
                         <button class="atm-btn" onclick="handleInput('exit')">Cancel/Exit</button>
                         <button class="atm-btn reset-btn" onclick="resetSystem()">Hardware Reset</button>
                     </div>
-                    <div style="margin-top: 15px; font-family: monospace; color: var(--neon-yellow); font-size: 0.75rem;" id="transitionLog">&delta;(start, &epsilon;) &rarr; q0</div>
+                    <div style="margin-top: 15px; font-family: monospace; color: var(--neon-yellow); font-size: 1.1rem;" id="transitionLog">&delta;(start, &epsilon;) &rarr; q0</div>
                     <div class="status-grid">
                         <div class="status-box">
                             <strong>PIN Attempts</strong>
@@ -762,15 +758,85 @@ timeout        -> q0</pre>
             </div>
 
             <div class="panel" style="margin-top: 20px;">
+                <div class="section-title">All User Cases In This Simulator</div>
+                <div class="two-col-grid">
+                    <div class="info-card">
+                        <h3>Case 1. Successful Transaction</h3>
+                        <p>The user follows the correct order: <strong>Insert Card</strong>, correct PIN <strong>1234</strong>, <strong>Choose Op</strong>, <strong>Withdraw</strong>, and <strong>Cancel/Exit</strong>. The machine moves through <strong>q0 -> q1 -> q2 -> q3 -> q4 -> q0</strong> and the transaction is accepted. In Theory of Computation terms, this is the main <strong>DFA</strong> path because each valid input has one exact next state. It also matches the project language and the regular expression <strong>(card)(pin)(op)(withdraw)(exit)</strong>.</p>
+                        <pre>&delta;(q0, card) = q1
+&delta;(q1, pin) = q2
+&delta;(q2, op) = q3
+&delta;(q3, withdraw) = q4
+&delta;(q4, exit) = q0</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 2. One Wrong PIN</h3>
+                        <p>If the user enters a wrong PIN once, the ATM stays in <strong>q1</strong>. The attempt counter increases, the screen shows an authentication failure message, and the user gets another chance to enter the PIN. This is useful for explaining <strong>NFA</strong> thinking, because the input symbol <strong>pin</strong> can conceptually lead to more than one possible result such as retry, success, lock, or rejection depending on the condition.</p>
+                        <pre>&delta;(q1, wrong_pin) = q1
+&delta;N(q1, pin) = {q2, q1, q_lock, q_dead}</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 3. Three Wrong PINs</h3>
+                        <p>If the user enters the wrong PIN three times, the system moves to <strong>q_lock</strong>. This represents a security lock state where the normal flow stops and the user cannot continue the transaction until the machine is reset. In formal language terms, this path is outside the accepted language, so the computation does not complete the valid ATM string.</p>
+                        <pre>&delta;(q1, wrong_pin^3) = q_lock
+w &notin L(M)</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 4. Wrong Button Order</h3>
+                        <p>If the user presses buttons in an invalid sequence, such as trying to withdraw before authentication or choosing an operation at the wrong time, the machine moves to <strong>q_dead</strong>. This is the trap state for protocol violations. It helps explain how a <strong>DFA</strong> rejects strings that do not follow the required order and how invalid derivations fail to match the grammar of the transaction process.</p>
+                        <pre>&delta;(q0, withdraw) = q_dead
+&delta;(q1, op) = q_dead
+invalid string &RightArrow; reject</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 5. Cancel Or Exit Midway</h3>
+                        <p>If the user presses <strong>Cancel/Exit</strong> from a valid intermediate state like <strong>q1</strong>, <strong>q2</strong>, <strong>q3</strong>, or <strong>q4</strong>, the ATM returns to <strong>q0</strong>. This models a safe session termination without completing the full transaction. In automata terms, the machine returns to the start state, but the partial input string is still not part of the accepted final transaction pattern.</p>
+                        <pre>&delta;(q1, exit) = q0
+&delta;(q2, exit) = q0
+&delta;(q3, exit) = q0</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 6. Timeout</h3>
+                        <p>If the user does nothing for the session timeout period, the simulator automatically resets the session back to <strong>q0</strong>. This shows how an ATM protects itself by ending inactive sessions. This case is also useful for discussing internal system movement similar to an automatic transition, which connects nicely to the idea of <strong>epsilon-style</strong> movement in extended automata explanations.</p>
+                        <pre>&delta;(qi, timeout) = q0
+q1 --&epsilon;--> q2  (extended explanation)</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 7. Hardware Reset</h3>
+                        <p>If the user reaches <strong>q_lock</strong> or <strong>q_dead</strong>, the normal buttons are no longer enough. The user must press <strong>Hardware Reset</strong>, which reboots the simulator, clears counters, and returns the machine to <strong>q0</strong>. This restart helps show that after rejection or lockout, a fresh computation begins again from the initial state.</p>
+                        <pre>&delta;(q_lock, reset) = q0
+&delta;(q_dead, reset) = q0</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Case 8. Live System Feedback</h3>
+                        <p>In every case, the user can observe the ATM display, transition equation, graph highlight, attempt counter, timeout counter, and log messages. This helps the user understand both the practical ATM behavior and the formal state-machine behavior at the same time. The state transitions illustrate <strong>DFA</strong> logic, the alternative outcomes around PIN handling help explain <strong>NFA</strong>, the accepted string matches a <strong>regular expression</strong>, and the ordered workflow can also be described with a simple <strong>CFG</strong> such as <strong>S -> card A -> pin B -> op C -> withdraw D -> exit</strong>.</p>
+                        <pre>M = (Q, &Sigma;, &delta;, q0, F)
+Q = {q0, q1, q2, q3, q4, q_lock, q_dead}
+&Sigma; = {card, pin, op, withdraw, exit}
+F = {q0}
+
+Regex: (card)(pin)(op)(withdraw)(exit)
+
+CFG:
+S -> card A
+A -> pin B
+B -> op C
+C -> withdraw D
+D -> exit</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
                 <div class="section-title">Best Demo Order</div>
                 <div class="two-col-grid">
                     <div class="info-card">
                         <h3>For User Understanding</h3>
-                        <p>Start with the normal ATM flow in <strong>Console &amp; FSM</strong>, then observe the graph, transition matrix, and logs. After that, move to the theory sections to understand how the same process is represented formally.</p>
+                        <p>Start with the normal ATM flow in <strong>Console &amp; FSM</strong>, then observe the graph, transition matrix, and logs to understand how the ATM behaves in both normal and error conditions.</p>
                     </div>
                     <div class="info-card">
                         <h3>For Viva or Presentation</h3>
-                        <p>Show one correct transaction first, then demonstrate a wrong PIN, then show <strong>q_lock</strong>, then show a protocol violation leading to <strong>q_dead</strong>, and finally open <strong>Advanced TOC</strong> and <strong>TOC Usage</strong> to explain the academic side.</p>
+                        <p>Show one correct transaction first, then demonstrate a wrong PIN, then show <strong>q_lock</strong>, and finally show a protocol violation leading to <strong>q_dead</strong>.</p>
                     </div>
                 </div>
             </div>
@@ -869,197 +935,6 @@ timeout        -> q0</pre>
             </div>
         </div>
 
-        <!-- Tab 6: Advanced TOC -->
-        <div id="advanced" class="tab-content">
-            <div class="panel">
-                <div class="section-title">Advanced Automata Models <span class="mode-indicator" id="automataModeLabel">Mode: DFA</span></div>
-                <div class="advanced-actions">
-                    <button class="atm-btn" onclick="switchMode('DFA')">DFA Mode</button>
-                    <button class="atm-btn" onclick="switchMode('NFA')">NFA Mode</button>
-                    <button class="atm-btn" onclick="switchMode('ENFA')">&epsilon;-NFA Mode</button>
-                </div>
-                <div class="advanced-output" id="advancedOutput">DFA mode is active. Every legal ATM input leads to one next state.</div>
-            </div>
-
-            <div class="panel" style="margin-top: 20px;">
-                <div class="section-title">Formal Definition</div>
-                <div class="two-col-grid">
-                    <div class="info-card">
-                        <h3>ATM Automaton Tuple</h3>
-                        <pre>M = (Q, Σ, δ, q0, F)
-Q = {q0, q1, q2, q3, q4, q_lock, q_dead}
-Σ = {card, pin, op, withdraw, exit}
-q0 = initial state
-F = {q0}</pre>
-                    </div>
-                    <div class="info-card">
-                        <h3>Interpretation</h3>
-                        <p>The simulator treats ATM activity as a formal machine. The user provides symbols from the alphabet, the machine follows the transition function, and accepted computation returns to the idle state after a valid transaction.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="two-col-grid" style="margin-top: 20px;">
-                <div class="panel">
-                    <div class="section-title">NFA and &epsilon;-NFA</div>
-                    <div class="info-card">
-                        <h3>NFA</h3>
-                        <p>In a Non-Deterministic Finite Automaton, one input may lead to multiple next states. In this ATM model, PIN processing can conceptually lead to success, retry, lock, or rejection.</p>
-                        <pre>q1 --pin--> {q2, q1, q_lock, q_dead}
-q2 --op--> {q3, q_dead}
-q3 --withdraw--> {q4}</pre>
-                    </div>
-                    <div class="info-card" style="margin-top: 15px;">
-                        <h3>&epsilon;-NFA</h3>
-                        <p>An epsilon transition changes state without consuming input. Here it is used to explain automatic internal preparation of the next ATM stage.</p>
-                        <pre>q1 --&epsilon;--> q2
-The machine can advance internally without consuming a user symbol.</pre>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <div class="section-title">Regular Expression and CFG</div>
-                    <div class="info-card">
-                        <h3>Regular Expression</h3>
-                        <p>The ideal transaction flow is represented by a regular expression that enforces the exact ATM action sequence.</p>
-                        <pre>(card)(pin)(op)(withdraw)(exit)</pre>
-                        <input class="mini-input" id="regexInput" placeholder="Enter sequence like: cardpinopwithdrawexit">
-                        <div class="advanced-actions">
-                            <button class="atm-btn" onclick="runRegexCheck()">Check Regex</button>
-                        </div>
-                        <div class="advanced-output" id="regexOutput">Regex validator ready.</div>
-                    </div>
-                    <div class="info-card" style="margin-top: 15px;">
-                        <h3>Context-Free Grammar</h3>
-                        <p>The same ATM process can be described using production rules, where every rule expands the next valid step.</p>
-                        <pre>S -> card A
-A -> pin B
-B -> op C
-C -> withdraw D
-D -> exit</pre>
-                        <div class="advanced-actions">
-                            <button class="atm-btn" onclick="runCfgDerivation()">Show Derivation</button>
-                        </div>
-                        <div class="advanced-output" id="cfgOutput">CFG derivation viewer ready.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="two-col-grid" style="margin-top: 20px;">
-                <div class="panel">
-                    <div class="section-title">PDA Simulation</div>
-                    <div class="info-card">
-                        <h3>Pushdown Automata</h3>
-                        <p>The PDA adds stack memory to finite-state behavior. In this project, the stack explains session memory such as card insertion and PIN validation order, while the text panel shows a PDA-style transition interpretation.</p>
-                        <pre>(q_start, card, Z0) -> (q_card, CARD Z0)
-(q_card, pin, CARD) -> (q_auth, PIN CARD)
-(q_auth, op, PIN) -> (q_op, OP PIN CARD)
-(q_op, withdraw, OP) -> (q_cash, WITHDRAW OP PIN CARD)
-(q_cash, exit, WITHDRAW) -> (q_accept, OP PIN CARD)
-Acceptance by final state: q_accept
-Invalid order -> q_reject</pre>
-                        <div class="advanced-actions">
-                            <button class="atm-btn" onclick="pushdown('card')">Push Card</button>
-                            <button class="atm-btn" onclick="pushdown('pin')">Push PIN</button>
-                            <button class="atm-btn" onclick="pushdown('op')">Push Op</button>
-                            <button class="atm-btn" onclick="pushdown('withdraw')">Push Withdraw</button>
-                            <button class="atm-btn" onclick="pushdown('exit')">Pop Exit</button>
-                            <button class="atm-btn" onclick="resetStack()">Reset Stack</button>
-                        </div>
-                        <div class="advanced-output" id="pdaOutput">Stack simulator ready.</div>
-                        <div class="stack-visual" id="stackVisual"></div>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <div class="section-title">Turing Machine Simulation</div>
-                    <div class="info-card">
-                        <h3>Tape, States, and Halting</h3>
-                        <p>A Turing Machine generalizes computation using a tape, a head, and machine states. This demo reads the ATM string from left to right and reports whether the sequence reaches an accept or reject state.</p>
-                        <pre>q_start -> q_read -> q_accept / q_reject
-Read expected symbol
-Move head right
-Halt when tape is exhausted or invalid</pre>
-                        <div class="advanced-actions">
-                            <button class="atm-btn" onclick="moveHead()">Move Head</button>
-                            <button class="atm-btn" onclick="resetTape()">Reset Tape</button>
-                        </div>
-                        <div class="advanced-output" id="tmOutput">Tape simulator ready.</div>
-                        <div class="tape-visual" id="tapeVisual"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel" style="margin-top: 20px;">
-                <div class="section-title">NFA to DFA Conversion Result</div>
-                <div class="advanced-actions" style="margin-top: 0; margin-bottom: 12px;">
-                    <button class="atm-btn" onclick="convertNFAtoDFA()">Convert to DFA</button>
-                </div>
-                <div class="advanced-output" id="conversionOutput">Click "Convert to DFA" to generate combined DFA states such as {q1, q2}.</div>
-            </div>
-            <div class="panel" style="margin-top: 20px;">
-                <div class="section-title">DFA Minimization</div>
-                <div class="advanced-actions" style="margin-top: 0; margin-bottom: 12px;">
-                    <button class="atm-btn" onclick="runMinimization()">Minimize DFA</button>
-                </div>
-                <div class="advanced-output" id="minimizationOutput">Click "Minimize DFA" to compute partitions and the minimized state count.</div>
-            </div>
-        </div>
-        <!-- Tab 7: TOC Usage -->
-        <div id="theory" class="tab-content">
-            <div class="panel">
-                <div class="section-title">Theory of Computation Used in This Project</div>
-                <div class="two-col-grid">
-                    <div class="info-card">
-                        <h3>1. DFA in the ATM Flow</h3>
-                        <p>The original project is a deterministic finite automaton. Each valid input from a current state has exactly one next state, so the machine follows a fixed sequence from card insertion to exit.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>2. NFA Extension</h3>
-                        <p>We extended the project with non-deterministic behavior to explain how one symbol can represent multiple conceptual outcomes.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>3. &epsilon;-NFA Usage</h3>
-                        <p>The epsilon transition is used to describe automatic system movement, such as preparing the next state without consuming a visible user input.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>4. NFA to DFA Conversion</h3>
-                        <p>The project demonstrates subset construction by combining multiple NFA states into one DFA state. This removes non-determinism while preserving the accepted language.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>5. Regular Expression</h3>
-                        <p>The transaction pattern <strong>(card)(pin)(op)(withdraw)(exit)</strong> summarizes the legal symbol sequence. The project includes a regex checker to validate this workflow.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>6. Context-Free Grammar</h3>
-                        <p>The ATM sequence is also written as production rules. This gives a derivation-based representation and shows how a valid transaction string is generated step by step.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>7. PDA</h3>
-                        <p>Pushdown automata add stack memory. In this project, the stack stores session markers such as card, PIN, operation, and withdrawal stage.</p>
-                    </div>
-                    <div class="info-card">
-                        <h3>8. Turing Machine</h3>
-                        <p>The Turing Machine model uses a tape of ATM actions and a head that reads one cell at a time. This shows how the workflow can be interpreted using a general model of computation.</p>
-                    </div>
-                </div>
-                <div class="pill-row">
-                    <div class="status-pill">DFA: exact next state</div>
-                    <div class="status-pill">NFA: multiple next states</div>
-                    <div class="status-pill">&epsilon;-NFA: automatic transitions</div>
-                    <div class="status-pill">PDA: stack memory</div>
-                    <div class="status-pill">TM: tape + head</div>
-                    <div class="status-pill">Lock: 3 wrong PIN attempts</div>
-                    <div class="status-pill">Timeout: auto reset to q0</div>
-                    <div class="status-pill">Minimization: partition refinement</div>
-                </div>
-                <div class="info-card" style="margin-top: 20px;">
-                    <h3>Viva Answer</h3>
-                    <p>Initially, the project implemented a DFA for ATM operations. We then added a lock state for repeated PIN failures, inactivity timeout reset, timestamped transition logging, NFA and epsilon-NFA behavior, NFA to DFA conversion, DFA minimization, Regular Expressions, Context-Free Grammar, PDA, and a basic Turing Machine view.</p>
-                    <a class="theory-link" href="toc-explanation.html" target="_blank">Open the full standalone TOC explanation page</a>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -1617,10 +1492,6 @@ Halt when tape is exhausted or invalid</pre>
         window.onload = () => {
             initGraph();
             updateUI();
-            renderStack();
-            renderTape();
-            runMinimization();
-            runCfgDerivation();
             logEvent('BOOT', 'System initialized in q0 and ready for ATM input.');
             startTimeoutTicker();
             updateTimeoutStatus();
