@@ -628,6 +628,7 @@
 
         <nav class="nav-tabs">
             <button class="tab-btn active" onclick="showTab('interactive')">Console & FSM</button>
+            <button class="tab-btn" onclick="showTab('process')">Process Guide</button>
             <button class="tab-btn" onclick="showTab('hardware')">Hardware</button>
             <button class="tab-btn" onclick="showTab('software')">Software Logic</button>
             <button class="tab-btn" onclick="showTab('diagnostics')">Error Segments</button>
@@ -693,7 +694,89 @@
                 <div class="log-list" id="logList"></div>
             </div>
         </div>
-        <!-- Tab 2: Hardware -->
+
+        <!-- Tab 2: Process Guide -->
+        <div id="process" class="tab-content">
+            <div class="panel">
+                <div class="section-title">How A User Approaches This Project</div>
+                <div class="two-col-grid">
+                    <div class="info-card">
+                        <h3>1. Entry Point</h3>
+                        <p>The user first lands on the main ATM Automata dashboard. The default tab is <strong>Console &amp; FSM</strong>, which acts as the interactive starting point of the project.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>2. Initial State</h3>
+                        <p>The ATM screen begins at <strong>q0: IDLE</strong> with the message <strong>WELCOME / INSERT CARD</strong>. This tells the user the machine is waiting for the first valid symbol.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>3. Card Insertion</h3>
+                        <p>The user clicks <strong>Insert Card</strong>. The machine transitions from <strong>q0</strong> to <strong>q1</strong>, where authentication begins and the PIN input field becomes active.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>4. PIN Validation</h3>
+                        <p>The user enters the PIN. If the value is <strong>1234</strong>, the machine moves to <strong>q2</strong>. If the PIN is wrong, the attempt counter increases and repeated failure eventually leads to <strong>q_lock</strong>.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>5. Operation Selection</h3>
+                        <p>After authentication, the user clicks <strong>Choose Op</strong>, which moves the machine from <strong>q2</strong> to <strong>q3</strong>. This represents choosing a banking operation in the formal workflow.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>6. Withdrawal Stage</h3>
+                        <p>The user clicks <strong>Withdraw</strong>, which transitions the system from <strong>q3</strong> to <strong>q4</strong>. This is the successful transaction-processing stage.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>7. Exit and Reset</h3>
+                        <p>The user clicks <strong>Cancel/Exit</strong> and the machine returns to <strong>q0</strong>. This completes one accepted transaction string and returns the ATM to idle.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>8. Continuous Feedback</h3>
+                        <p>During every step, the project updates the ATM screen, state graph, transition matrix, timeout counter, attempt tracker, and transaction logs so the user can see both system behavior and formal automata behavior together.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-col-grid" style="margin-top: 20px;">
+                <div class="panel">
+                    <div class="section-title">Normal Transaction Flow</div>
+                    <div class="info-card">
+                        <h3>Accepted Sequence</h3>
+                        <pre>q0 --card--> q1
+q1 --pin(correct)--> q2
+q2 --op--> q3
+q3 --withdraw--> q4
+q4 --exit--> q0</pre>
+                        <p>This is the ideal user path. It corresponds to the accepted ATM language and shows how the user completes a valid transaction from start to finish.</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="section-title">Error and Security Flow</div>
+                    <div class="info-card">
+                        <h3>When The User Makes Mistakes</h3>
+                        <p>If the user presses buttons in the wrong order, the system moves to <strong>q_dead</strong>. If the user enters the wrong PIN three times, the machine moves to <strong>q_lock</strong>. In both cases, the user must use <strong>Hardware Reset</strong> to start again.</p>
+                        <pre>wrong sequence -> q_dead
+3 wrong PINs   -> q_lock
+timeout        -> q0</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <div class="section-title">Best Demo Order</div>
+                <div class="two-col-grid">
+                    <div class="info-card">
+                        <h3>For User Understanding</h3>
+                        <p>Start with the normal ATM flow in <strong>Console &amp; FSM</strong>, then observe the graph, transition matrix, and logs. After that, move to the theory sections to understand how the same process is represented formally.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>For Viva or Presentation</h3>
+                        <p>Show one correct transaction first, then demonstrate a wrong PIN, then show <strong>q_lock</strong>, then show a protocol violation leading to <strong>q_dead</strong>, and finally open <strong>Advanced TOC</strong> and <strong>TOC Usage</strong> to explain the academic side.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Hardware -->
         <div id="hardware" class="tab-content">
             <div class="panel">
                 <div class="section-title">Hardware Architecture Block Diagram</div>
@@ -794,10 +877,26 @@
                     <button class="atm-btn" onclick="switchMode('DFA')">DFA Mode</button>
                     <button class="atm-btn" onclick="switchMode('NFA')">NFA Mode</button>
                     <button class="atm-btn" onclick="switchMode('ENFA')">&epsilon;-NFA Mode</button>
-                    <button class="atm-btn" onclick="convertNFAtoDFA()">Convert to DFA</button>
-                    <button class="atm-btn" onclick="runMinimization()">Minimize DFA</button>
                 </div>
                 <div class="advanced-output" id="advancedOutput">DFA mode is active. Every legal ATM input leads to one next state.</div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <div class="section-title">Formal Definition</div>
+                <div class="two-col-grid">
+                    <div class="info-card">
+                        <h3>ATM Automaton Tuple</h3>
+                        <pre>M = (Q, Σ, δ, q0, F)
+Q = {q0, q1, q2, q3, q4, q_lock, q_dead}
+Σ = {card, pin, op, withdraw, exit}
+q0 = initial state
+F = {q0}</pre>
+                    </div>
+                    <div class="info-card">
+                        <h3>Interpretation</h3>
+                        <p>The simulator treats ATM activity as a formal machine. The user provides symbols from the alphabet, the machine follows the transition function, and accepted computation returns to the idle state after a valid transaction.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="two-col-grid" style="margin-top: 20px;">
@@ -838,6 +937,10 @@ A -> pin B
 B -> op C
 C -> withdraw D
 D -> exit</pre>
+                        <div class="advanced-actions">
+                            <button class="atm-btn" onclick="runCfgDerivation()">Show Derivation</button>
+                        </div>
+                        <div class="advanced-output" id="cfgOutput">CFG derivation viewer ready.</div>
                     </div>
                 </div>
             </div>
@@ -847,10 +950,19 @@ D -> exit</pre>
                     <div class="section-title">PDA Simulation</div>
                     <div class="info-card">
                         <h3>Pushdown Automata</h3>
-                        <p>The PDA adds stack memory to finite-state behavior. In this project, the stack explains session memory such as card insertion and PIN validation order.</p>
+                        <p>The PDA adds stack memory to finite-state behavior. In this project, the stack explains session memory such as card insertion and PIN validation order, while the text panel shows a PDA-style transition interpretation.</p>
+                        <pre>(q_start, card, Z0) -> (q_card, CARD Z0)
+(q_card, pin, CARD) -> (q_auth, PIN CARD)
+(q_auth, op, PIN) -> (q_op, OP PIN CARD)
+(q_op, withdraw, OP) -> (q_cash, WITHDRAW OP PIN CARD)
+(q_cash, exit, WITHDRAW) -> (q_accept, OP PIN CARD)
+Acceptance by final state: q_accept
+Invalid order -> q_reject</pre>
                         <div class="advanced-actions">
                             <button class="atm-btn" onclick="pushdown('card')">Push Card</button>
                             <button class="atm-btn" onclick="pushdown('pin')">Push PIN</button>
+                            <button class="atm-btn" onclick="pushdown('op')">Push Op</button>
+                            <button class="atm-btn" onclick="pushdown('withdraw')">Push Withdraw</button>
                             <button class="atm-btn" onclick="pushdown('exit')">Pop Exit</button>
                             <button class="atm-btn" onclick="resetStack()">Reset Stack</button>
                         </div>
@@ -862,8 +974,12 @@ D -> exit</pre>
                 <div class="panel">
                     <div class="section-title">Turing Machine Simulation</div>
                     <div class="info-card">
-                        <h3>Tape and Head Movement</h3>
-                        <p>A Turing Machine generalizes computation using a tape and a moving head. We model the tape as the ATM input sequence and move the head to the right after every read.</p>
+                        <h3>Tape, States, and Halting</h3>
+                        <p>A Turing Machine generalizes computation using a tape, a head, and machine states. This demo reads the ATM string from left to right and reports whether the sequence reaches an accept or reject state.</p>
+                        <pre>q_start -> q_read -> q_accept / q_reject
+Read expected symbol
+Move head right
+Halt when tape is exhausted or invalid</pre>
                         <div class="advanced-actions">
                             <button class="atm-btn" onclick="moveHead()">Move Head</button>
                             <button class="atm-btn" onclick="resetTape()">Reset Tape</button>
@@ -876,10 +992,16 @@ D -> exit</pre>
 
             <div class="panel" style="margin-top: 20px;">
                 <div class="section-title">NFA to DFA Conversion Result</div>
+                <div class="advanced-actions" style="margin-top: 0; margin-bottom: 12px;">
+                    <button class="atm-btn" onclick="convertNFAtoDFA()">Convert to DFA</button>
+                </div>
                 <div class="advanced-output" id="conversionOutput">Click "Convert to DFA" to generate combined DFA states such as {q1, q2}.</div>
             </div>
             <div class="panel" style="margin-top: 20px;">
                 <div class="section-title">DFA Minimization</div>
+                <div class="advanced-actions" style="margin-top: 0; margin-bottom: 12px;">
+                    <button class="atm-btn" onclick="runMinimization()">Minimize DFA</button>
+                </div>
                 <div class="advanced-output" id="minimizationOutput">Click "Minimize DFA" to compute partitions and the minimized state count.</div>
             </div>
         </div>
@@ -914,7 +1036,7 @@ D -> exit</pre>
                     </div>
                     <div class="info-card">
                         <h3>7. PDA</h3>
-                        <p>Pushdown automata add stack memory. In this project, the stack stores session markers such as card and PIN.</p>
+                        <p>Pushdown automata add stack memory. In this project, the stack stores session markers such as card, PIN, operation, and withdrawal stage.</p>
                     </div>
                     <div class="info-card">
                         <h3>8. Turing Machine</h3>
@@ -988,8 +1110,10 @@ D -> exit</pre>
         let network = null;
         let automataMode = "DFA";
         let stack = [];
+        let pdaState = "q_start";
         let tape = ["card", "pin", "op", "withdraw", "exit"];
         let head = 0;
+        let tmState = "q_start";
         let pinAttempts = 0;
         let logs = [];
         let timeoutDeadline = Date.now() + TIMEOUT_MS;
@@ -1317,6 +1441,11 @@ D -> exit</pre>
                 : `Rejected. "${input}" does not match (card)(pin)(op)(withdraw)(exit).`;
         }
 
+        function runCfgDerivation() {
+            document.getElementById('cfgOutput').innerText =
+                `Leftmost derivation:\nS\n=> card A\n=> card pin B\n=> card pin op C\n=> card pin op withdraw D\n=> card pin op withdraw exit\n\nGenerated string: card pin op withdraw exit`;
+        }
+
         function renderStack() {
             const host = document.getElementById('stackVisual');
             if (!host) return;
@@ -1326,16 +1455,34 @@ D -> exit</pre>
         }
 
         function pushdown(input) {
-            if (input === 'card') stack.push('CARD');
-            if (input === 'pin') stack.push('PIN');
-            if (input === 'exit' && stack.length) stack.pop();
-            document.getElementById('pdaOutput').innerText = `Input: ${input}\nStack: [ ${stack.join(' -> ') || 'EMPTY'} ]`;
+            const transitions = {
+                q_start: { card: { next: "q_card", push: "CARD" } },
+                q_card: { pin: { next: "q_auth", push: "PIN" } },
+                q_auth: { op: { next: "q_op", push: "OP" } },
+                q_op: { withdraw: { next: "q_cash", push: "WITHDRAW" } },
+                q_cash: { exit: { next: "q_accept", pop: true } }
+            };
+
+            const step = transitions[pdaState] && transitions[pdaState][input];
+
+            if (!step) {
+                pdaState = "q_reject";
+                document.getElementById('pdaOutput').innerText = `Input: ${input}\nPDA State: ${pdaState}\nStack: [ ${stack.join(' -> ') || 'EMPTY'} ]\nAcceptance: Rejected due to invalid PDA transition`;
+                renderStack();
+                return;
+            }
+
+            if (step.push) stack.push(step.push);
+            if (step.pop && stack.length) stack.pop();
+            pdaState = step.next;
+            document.getElementById('pdaOutput').innerText = `Input: ${input}\nPDA State: ${pdaState}\nStack: [ ${stack.join(' -> ') || 'EMPTY'} ]\nAcceptance: ${pdaState === 'q_accept' ? 'Accepted by final state' : 'Not yet accepted'}`;
             renderStack();
         }
 
         function resetStack() {
             stack = [];
-            document.getElementById('pdaOutput').innerText = 'Stack simulator reset.';
+            pdaState = "q_start";
+            document.getElementById('pdaOutput').innerText = 'Stack simulator reset.\nPDA State: q_start\nStack: [ EMPTY ]';
             renderStack();
         }
 
@@ -1346,20 +1493,31 @@ D -> exit</pre>
         }
 
         function moveHead() {
+            const expectedTape = ["card", "pin", "op", "withdraw", "exit"];
             const currentSymbol = tape[head];
             if (currentSymbol === undefined) {
-                document.getElementById('tmOutput').innerText = 'Head is beyond the defined tape. Reset to start again.';
+                tmState = tmState === "q_read" ? "q_accept" : tmState;
+                document.getElementById('tmOutput').innerText = `State: ${tmState}\nHead is beyond the defined tape.\nComputation halted.`;
                 return;
             }
-            document.getElementById('tmOutput').innerText = `Reading: ${currentSymbol}\nHead position: ${head}\nAction: move right`;
+            tmState = "q_read";
+            if (currentSymbol !== expectedTape[head]) {
+                tmState = "q_reject";
+                document.getElementById('tmOutput').innerText = `State: ${tmState}\nReading: ${currentSymbol}\nHead position: ${head}\nAction: reject and halt`;
+                return;
+            }
+            const nextState = head === expectedTape.length - 1 ? "q_accept" : "q_read";
+            document.getElementById('tmOutput').innerText = `State: ${tmState}\nReading: ${currentSymbol}\nHead position: ${head}\nAction: move right\nNext state: ${nextState}`;
             head += 1;
+            tmState = nextState;
             renderTape();
         }
 
         function resetTape() {
             tape = ['card', 'pin', 'op', 'withdraw', 'exit'];
             head = 0;
-            document.getElementById('tmOutput').innerText = 'Tape reset. Head is at the first symbol.';
+            tmState = "q_start";
+            document.getElementById('tmOutput').innerText = 'Tape reset. Head is at the first symbol.\nState: q_start';
             renderTape();
         }
 
@@ -1462,6 +1620,7 @@ D -> exit</pre>
             renderStack();
             renderTape();
             runMinimization();
+            runCfgDerivation();
             logEvent('BOOT', 'System initialized in q0 and ready for ATM input.');
             startTimeoutTicker();
             updateTimeoutStatus();
