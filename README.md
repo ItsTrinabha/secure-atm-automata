@@ -1,55 +1,71 @@
 # ATM Automata
 
-An interactive Theory of Computation project that models a secure ATM transaction system using automata theory, formal language concepts, and modern UI design.
+> A complete Theory of Computation project that models a secure ATM transaction system through formal automata, language theory, and interactive visualization.
 
-This project starts with a deterministic ATM workflow and extends it with security controls, formal analysis, and multiple computation models including DFA, NFA, epsilon-NFA, NFA-to-DFA conversion, DFA minimization, Regular Expressions, Context-Free Grammar, Pushdown Automata, and a basic Turing Machine simulation.
+---
 
-## Project Overview
+## 📌 Project Summary
 
-Automated Teller Machines work through a strict sequence of actions:
+This project demonstrates how an ATM session can be designed as a formal computational model. It starts with a deterministic ATM workflow and extends it into academic TOC concepts such as:
 
-1. Card insertion
-2. PIN verification
-3. Operation selection
-4. Withdrawal processing
-5. Exit / return to idle
-
-This project represents that workflow as a formal automaton and then expands it to show how Theory of Computation concepts apply to a real-world system.
-
-The project includes:
-
-- A polished HTML/CSS/JavaScript interactive simulator
-- A standalone TOC explanation page
-- Security extensions such as lock state, timeout recovery, and logging
-- Academic extensions for viva, presentation, and report support
-
-## Main Features
-
-- DFA-based ATM workflow simulation
-- Lock state after 3 incorrect PIN attempts
-- Trap state for invalid input sequences
-- Timeout recovery back to `q0`
-- Dead-state detection
-- Transition logging with timestamps
-- Transition matrix display
-- Live automata graph / state flow visualization
-- NFA and epsilon-NFA explanation
+- Deterministic Finite Automaton (DFA)
+- Non-Deterministic Finite Automaton (NFA)
+- Epsilon-NFA
 - NFA-to-DFA conversion
-- DFA minimization using partition refinement
-- Regular Expression validation
-- Context-Free Grammar representation
-- PDA stack simulation
-- Turing Machine tape simulation
-- Hardware architecture explanation for ATM implementation
-- Improved UI/UX for project presentation and GitHub showcase
+- DFA minimization
+- Regular Expression modeling
+- Context-Free Grammar (CFG)
+- Pushdown Automaton (PDA)
+- Turing Machine simulation
 
-## Theory of Computation Concepts Used
+The purpose is to connect real-world ATM behavior to Theory of Computation concepts, making the system both practical and pedagogical.
+
+---
+
+## 🚀 What the Project Delivers
+
+- Interactive HTML/CSS/JavaScript ATM simulator
+- Clean UI with formal state flow visualization
+- Security behavior for PIN retries and lock states
+- Formal language modeling for accepted and rejected sequences
+- Structured explanation pages for academic submission
+- Ready-to-present content for viva, seminar, and report evaluation
+
+---
+
+## ⭐ Key Features
+
+- **DFA-based ATM workflow** with defined states and transitions
+- **Invalid input rejection** through trap state handling
+- **Lock state** after 3 incorrect PIN attempts
+- **Timeout and reset flow** that returns the machine to idle
+- **Transition logs** and state history tracking
+- **Graphical state visualization** for better understanding
+- **NFA / ε-NFA conceptual support** for nondeterministic behavior
+- **NFA to DFA conversion** to show subset construction
+- **DFA minimization** to illustrate state reduction
+- **Regular Expression** representation of the valid ATM transaction language
+- **CFG representation** to map ATM workflow rules
+- **PDA simulation** with stack behavior for session control
+- **Turing Machine tape simulation** for advanced computation modeling
+
+---
+
+## 📚 Theory of Computation Concepts Used
 
 ### 1. Deterministic Finite Automaton (DFA)
 
-The core ATM simulator is modeled as a DFA.
+The ATM model is primarily designed as a DFA. Each input symbol triggers one unique next state, making the workflow deterministic and predictable.
 
-Example flow:
+Formal description:
+
+- `Q = {q0, q1, q2, q3, q4, q_lock, q_dead}`
+- `Σ = {card, pin, op, withdraw, exit}`
+- `q0` = initial state
+- `F = {q0}` after successful completion
+- `δ` = transition function
+
+Example valid flow:
 
 ```text
 q0 --card--> q1
@@ -59,63 +75,49 @@ q3 --withdraw--> q4
 q4 --exit--> q0
 ```
 
-### 2. Non-Deterministic Finite Automaton (NFA)
+### 2. Trap State and Rejection
 
-NFA is used to explain branching behavior such as:
+Invalid or out-of-order actions move the machine to a trap state (`q_dead`). Once in `q_dead`, the system requires reset, demonstrating formal rejection behavior.
 
-- correct PIN
-- retry
-- lock
-- rejection
+### 3. Lock State
+
+Security is modeled by a finite-state lock behavior:
+
+- 3 wrong PIN entries → `q_lock`
+- accepts only reset or authorized recovery inputs
+- simulates real ATM lockout policy using automaton states
+
+### 4. Non-Deterministic Finite Automaton (NFA)
+
+The NFA model shows how one input can lead to many possible next states, which is useful for conceptualizing alternate outcomes, retries, and branching failures.
+
+### 5. Epsilon-NFA
+
+Epsilon transitions represent internal state changes that do not consume user-visible input. This helps explain hidden state movement and internal state preparation.
+
+### 6. NFA to DFA Conversion
+
+The project includes subset construction examples showing how nondeterministic state sets become deterministic DFA states.
+
+### 7. DFA Minimization
+
+Minimization is used to demonstrate how equivalent states can be merged while preserving accepted language behavior.
+
+### 8. Regular Expressions
+
+The valid ATM transaction sequence is represented as a regular expression.
 
 Example:
-
-```text
-q1 --pin--> {q2, q1, q_lock, q_dead}
-q2 --op--> {q3, q_dead}
-```
-
-### 3. Epsilon-NFA
-
-Epsilon transitions are used to explain internal state movement without consuming visible input.
-
-```text
-q1 --ε--> q2
-```
-
-### 4. NFA to DFA Conversion
-
-Subset construction is demonstrated to convert non-deterministic state sets into deterministic composite states.
-
-Examples:
-
-```text
-{q1, q2}
-{q1, q_lock}
-{q2, q_dead}
-```
-
-### 5. DFA Minimization
-
-Partition refinement is used to analyze whether DFA states can be merged while preserving behavior.
-
-This helps explain:
-
-- formal optimization
-- reduced state complexity
-- implementation efficiency
-
-### 6. Regular Expression
-
-The legal ATM transaction string is represented as:
 
 ```text
 (card)(pin)(op)(withdraw)(exit)
 ```
 
-### 7. Context-Free Grammar (CFG)
+### 9. Context-Free Grammar (CFG)
 
-The same workflow is also represented as production rules:
+The ATM workflow is also described using production rules.
+
+Example:
 
 ```text
 S -> card A
@@ -125,78 +127,72 @@ C -> withdraw D
 D -> exit
 ```
 
-### 8. Pushdown Automata (PDA)
+### 10. Pushdown Automaton (PDA)
 
-PDA is used to simulate stack memory for session events such as card and PIN handling.
+A PDA is included to simulate stack-based session memory, demonstrating how pushdown automata can model nested or sequential session operations.
 
-### 9. Turing Machine
+### 11. Turing Machine
 
-A simple tape-based representation is included to show a more general model of computation.
+A simple tape-based Turing Machine simulation illustrates the general computation model beyond finite automata.
 
-## How Theory of Computation Is Used In This Project
+---
 
-This project does not use Theory of Computation only as background theory. TOC is used as the actual design logic behind the ATM system.
+## 📁 Project Structure
 
-Instead of treating the ATM as a normal UI with buttons, the project treats it as a formal machine that changes state only when a valid symbol is received. That means the ATM is modeled as a language-recognition system where:
+- `ATM.html` — Main ATM simulator and interface
+- `index.html` — Home or landing page for the project
+- `toc-explanation.html` — Theory of Computation explanation page
+- `final1.html` — Final project submission page or report view
+- `rejected.html` — Invalid/failed transaction demonstration page
 
-- states represent stages of the ATM session
-- inputs represent valid ATM actions
-- transitions define what the machine is allowed to do next
-- invalid strings are rejected formally
+---
 
-So the project is built around formal computation models, not just around interface behavior.
+## ✅ How to Use
 
-### DFA as the Core ATM Model
+1. Open `ATM.html` in a web browser.
+2. Follow the transaction flow by selecting:
+   - `Card`
+   - `PIN`
+   - `Operation`
+   - `Withdraw`
+   - `Exit`
+3. Explore invalid inputs and observe trap-state behavior.
+4. Review the explanation page in `toc-explanation.html` for academic details.
 
-The main workflow is designed as a Deterministic Finite Automaton.
+---
 
-That means:
+## 🎯 Learning Outcomes
 
-- every valid input from a valid state leads to one exact next state
-- the ATM behaves in a predictable and controlled way
-- valid user behavior follows one legal transaction path
+After using this project, a reader should be able to:
 
-Formal interpretation:
+- Explain how a real ATM workflow maps to a DFA
+- Distinguish between DFA, NFA, and ε-NFA behaviors
+- Convert an NFA into an equivalent DFA
+- Minimize a DFA using partition refinement
+- Express an ATM sequence using regular expressions and CFG
+- Understand how finite state machines can model security features
+- Relate PDA and Turing Machine concepts to practical computation modeling
 
-- `Q = {q0, q1, q2, q3, q4, q_lock, q_dead}`
-- `Σ = {card, pin, op, withdraw, exit}`
-- `q0` is the initial state
-- `δ` is the transition function
-- the machine returns to `q0` after a successful session
+---
 
-Example valid DFA flow:
+## 💡 Submission Notes
 
-```text
-q0 --card--> q1
-q1 --pin(correct)--> q2
-q2 --op--> q3
-q3 --withdraw--> q4
-q4 --exit--> q0
-```
+This repository is designed for academic submission. It combines:
 
-This is the formal language the ATM accepts.
+- formal Theory of Computation modeling,
+- interactive simulation,
+- clear documentation,
+- and submission-ready explanation structure.
 
-### Rejection Through Trap State
+Use the HTML pages and visual simulation as evidence of both theoretical understanding and practical implementation quality.
 
-TOC is also used to define rejection behavior.
+---
 
-If a wrong symbol is entered at the wrong time, the input string should not be accepted. For that reason, the project includes:
+## 📞 Contact / Author
 
-- `q_dead` as a trap state
+Prepared as a semester project in Theory of Computation.
 
-This means:
-
-- invalid sequences are formally rejected
-- once the machine enters `q_dead`, it cannot continue normal computation
-- the system requires reset or recovery logic
-
-This is a direct application of finite automata rejection behavior.
-
-### Lock State as Finite-State Security Logic
-
-The project extends the formal DFA with a security-oriented state:
-
-- `q_lock`
+For further explanation, refer to `toc-explanation.html` and the source HTML files.
 
 After three incorrect PIN attempts, the machine moves to `q_lock`.
 
