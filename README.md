@@ -1,198 +1,165 @@
 # ATM Automata
 
-> A complete Theory of Computation project that models a secure ATM transaction system through formal automata, language theory, and interactive visualization.
+## 1. Title
+
+**ATM Automata**
+
+A Theory of Computation project that models an ATM transaction system using formal automata, language theory, and interactive visualization.
 
 ---
 
-## 📌 Project Summary
+## 2. Team Members
 
-This project demonstrates how an ATM session can be designed as a formal computational model. It starts with a deterministic ATM workflow and extends it into academic TOC concepts such as:
+- Trinabha Dixit
+- Bhargav Mahanta
+
+---
+
+## 3. Aim
+
+The aim of this project is to demonstrate how a real-world ATM workflow can be represented as a formal computational model. The project uses Theory of Computation concepts to:
+
+- model the ATM session as a finite automaton,
+- enforce security behavior like PIN validation and lockout,
+- explain invalid transitions through rejection states,
+- illustrate equivalent formal representations using regular expressions and context-free grammar,
+- extend the same system with PDA and Turing Machine concepts.
+
+---
+
+## 4. Modules
+
+This is a multi-module HTML project with the following components:
+
+- `ATM.html` — Main interactive ATM simulator with DFA-based state transitions, security logic, and visualization.
+- `toc-explanation.html` — Theory of Computation explanation page covering DFA, NFA, ε-NFA, regex, CFG, PDA, and TM concepts.
+- `.gitignore` — Git ignore settings for the project.
+- `README.md` — Project documentation and submission guide.
+
+> Note: There is no `index.html`, `final1.html`, or `rejected.html` in the current folder structure, so the README reflects the actual available files.
+
+### Related TOC Topics Used
+
+This project uses the following Theory of Computation topics:
 
 - Deterministic Finite Automaton (DFA)
 - Non-Deterministic Finite Automaton (NFA)
 - Epsilon-NFA
-- NFA-to-DFA conversion
+- NFA to DFA conversion
 - DFA minimization
-- Regular Expression modeling
+- Regular Expressions
 - Context-Free Grammar (CFG)
 - Pushdown Automaton (PDA)
-- Turing Machine simulation
-
-The purpose is to connect real-world ATM behavior to Theory of Computation concepts, making the system both practical and pedagogical.
-
----
-
-## 🚀 What the Project Delivers
-
-- Interactive HTML/CSS/JavaScript ATM simulator
-- Clean UI with formal state flow visualization
-- Security behavior for PIN retries and lock states
-- Formal language modeling for accepted and rejected sequences
-- Structured explanation pages for academic submission
-- Ready-to-present content for viva, seminar, and report evaluation
+- Turing Machine (TM)
+- Language acceptance and rejection
+- Trap/lock state modeling
+- Timeout and recovery behavior
 
 ---
 
-## ⭐ Key Features
+## 5. Highlights of the Project (Features)
 
-- **DFA-based ATM workflow** with defined states and transitions
-- **Invalid input rejection** through trap state handling
-- **Lock state** after 3 incorrect PIN attempts
-- **Timeout and reset flow** that returns the machine to idle
-- **Transition logs** and state history tracking
-- **Graphical state visualization** for better understanding
-- **NFA / ε-NFA conceptual support** for nondeterministic behavior
-- **NFA to DFA conversion** to show subset construction
-- **DFA minimization** to illustrate state reduction
-- **Regular Expression** representation of the valid ATM transaction language
-- **CFG representation** to map ATM workflow rules
-- **PDA simulation** with stack behavior for session control
-- **Turing Machine tape simulation** for advanced computation modeling
+- **DFA-based transaction flow** with defined ATM states and valid transitions.
+- **PIN verification** with a secure check for the correct PIN value.
+- **Lock state after 3 wrong PIN attempts** to simulate real ATM security.
+- **Trap state (`q_dead`)** for invalid or out-of-order button presses.
+- **Timeout recovery** that returns the system to the idle state after inactivity.
+- **Transition logging** to capture each state change with timestamped messages.
+- **Live state graph** visualization using `vis-network`.
+- **Multi-phase interface** showing DFA, regex/CFG, PDA, and Turing Machine sections.
+- **Theoretical summary page** for clear academic explanation.
 
 ---
 
-## 📚 Theory of Computation Concepts Used
+## 6. Screenshots
 
-### 1. Deterministic Finite Automaton (DFA)
+The current repository does not include image files, but you can capture the following screens in your browser and add them later:
 
-The ATM model is primarily designed as a DFA. Each input symbol triggers one unique next state, making the workflow deterministic and predictable.
+1. `ATM.html` main dashboard with ATM display and controls.
+2. DFA state graph view.
+3. Process guide / accepted transaction flow.
+4. Theory explanation page in `toc-explanation.html`.
 
-Formal description:
+If screenshot images are added, include them like this:
 
-- `Q = {q0, q1, q2, q3, q4, q_lock, q_dead}`
-- `Σ = {card, pin, op, withdraw, exit}`
-- `q0` = initial state
-- `F = {q0}` after successful completion
-- `δ` = transition function
-
-Example valid flow:
-
-```text
-q0 --card--> q1
-q1 --pin(correct)--> q2
-q2 --op--> q3
-q3 --withdraw--> q4
-q4 --exit--> q0
+```markdown
+![ATM Simulator](screenshots/atm-dashboard.png)
+![TOC Explanation](screenshots/toc-explanation.png)
 ```
 
-### 2. Trap State and Rejection
+---
 
-Invalid or out-of-order actions move the machine to a trap state (`q_dead`). Once in `q_dead`, the system requires reset, demonstrating formal rejection behavior.
+## 7. Advantages and Benefits
 
-### 3. Lock State
-
-Security is modeled by a finite-state lock behavior:
-
-- 3 wrong PIN entries → `q_lock`
-- accepts only reset or authorized recovery inputs
-- simulates real ATM lockout policy using automaton states
-
-### 4. Non-Deterministic Finite Automaton (NFA)
-
-The NFA model shows how one input can lead to many possible next states, which is useful for conceptualizing alternate outcomes, retries, and branching failures.
-
-### 5. Epsilon-NFA
-
-Epsilon transitions represent internal state changes that do not consume user-visible input. This helps explain hidden state movement and internal state preparation.
-
-### 6. NFA to DFA Conversion
-
-The project includes subset construction examples showing how nondeterministic state sets become deterministic DFA states.
-
-### 7. DFA Minimization
-
-Minimization is used to demonstrate how equivalent states can be merged while preserving accepted language behavior.
-
-### 8. Regular Expressions
-
-The valid ATM transaction sequence is represented as a regular expression.
-
-Example:
-
-```text
-(card)(pin)(op)(withdraw)(exit)
-```
-
-### 9. Context-Free Grammar (CFG)
-
-The ATM workflow is also described using production rules.
-
-Example:
-
-```text
-S -> card A
-A -> pin B
-B -> op C
-C -> withdraw D
-D -> exit
-```
-
-### 10. Pushdown Automaton (PDA)
-
-A PDA is included to simulate stack-based session memory, demonstrating how pushdown automata can model nested or sequential session operations.
-
-### 11. Turing Machine
-
-A simple tape-based Turing Machine simulation illustrates the general computation model beyond finite automata.
+- **Educational clarity**: Helps learners connect ATM workflows with formal automata concepts.
+- **Practical security modeling**: Demonstrates lockout and rejection in a controlled simulator.
+- **Multiple TOC representations**: Shows DFA, NFA, ε-NFA, regex, CFG, PDA, and TM within one project.
+- **Interactive experience**: Provides immediate visual feedback for each action.
+- **Presentation-ready**: Contains both simulation and explanation content for academic submission.
+- **Simple setup**: Runs directly in a browser with no backend required.
 
 ---
 
-## 📁 Project Structure
+## 8. Drawbacks and Future Improvements
 
-- `ATM.html` — Main ATM simulator and interface
-- `index.html` — Home or landing page for the project
-- `toc-explanation.html` — Theory of Computation explanation page
-- `final1.html` — Final project submission page or report view
-- `rejected.html` — Invalid/failed transaction demonstration page
+### Drawbacks
+
+- No dedicated image screenshot assets are currently included.
+- The simulator is browser-only and does not have a backend or database.
+- The current PIN logic is fixed to a single value and not extensible without code changes.
+- The project contains only two HTML files, so there is limited separation between frontend modules.
+
+### Future Improvements
+
+- Add real screenshot files under a `screenshots/` folder.
+- Add a `README` image preview and demo GIF for GitHub presentation.
+- Add `index.html` as a landing page that links to the simulator and theory guide.
+- Support configurable PIN values and multi-user session flow.
+- Add a backend or server-based simulation for ATM request handling.
+- Improve mobile responsiveness and UX for smaller screens.
+- Add more formal analysis tools such as DFA equivalence and reachability reports.
 
 ---
 
-## ✅ How to Use
+## 9. Societal Measures and Usage
+
+This ATM Automata project promotes safer and more understandable banking workflows by:
+
+- modeling security awareness through lockout policy,
+- emphasizing correct transaction order,
+- demonstrating how invalid actions are rejected formally,
+- teaching the importance of controlled user input and session management.
+
+### Usage Scenarios
+
+- Academic submission for Theory of Computation coursework.
+- Classroom demonstration of automata concepts.
+- Seminar presentation on formal models and secure workflow design.
+- Self-study resource for students learning DFA, NFA, CFG, PDA, and TM.
+
+---
+
+## How to Run
 
 1. Open `ATM.html` in a web browser.
-2. Follow the transaction flow by selecting:
-   - `Card`
-   - `PIN`
-   - `Operation`
+2. Use the buttons to simulate ATM actions:
+   - `Insert Card`
+   - `Enter PIN`
+   - `Choose Op`
    - `Withdraw`
-   - `Exit`
-3. Explore invalid inputs and observe trap-state behavior.
-4. Review the explanation page in `toc-explanation.html` for academic details.
+   - `Cancel/Exit`
+3. Open `toc-explanation.html` to review the Theory of Computation explanation.
 
 ---
 
-## 🎯 Learning Outcomes
+## Author Info
 
-After using this project, a reader should be able to:
+Project by:
 
-- Explain how a real ATM workflow maps to a DFA
-- Distinguish between DFA, NFA, and ε-NFA behaviors
-- Convert an NFA into an equivalent DFA
-- Minimize a DFA using partition refinement
-- Express an ATM sequence using regular expressions and CFG
-- Understand how finite state machines can model security features
-- Relate PDA and Turing Machine concepts to practical computation modeling
+- Trinabha Dixit
+- Bhargav Mahanta
 
----
-
-## 💡 Submission Notes
-
-This repository is designed for academic submission. It combines:
-
-- formal Theory of Computation modeling,
-- interactive simulation,
-- clear documentation,
-- and submission-ready explanation structure.
-
-Use the HTML pages and visual simulation as evidence of both theoretical understanding and practical implementation quality.
-
----
-
-## 📞 Contact / Author
-
-Prepared as a semester project in Theory of Computation.
-
-For further explanation, refer to `toc-explanation.html` and the source HTML files.
+This project is prepared for Theory of Computation coursework and a formal automata demonstration.
 
 After three incorrect PIN attempts, the machine moves to `q_lock`.
 
