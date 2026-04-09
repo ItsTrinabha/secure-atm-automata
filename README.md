@@ -118,15 +118,14 @@ The project is organized by TOC concepts:
 
 ## 6. Screenshots
 
-Capture these screens from your running project UI and add them later:
+The project includes screenshot images in the `screenshots/` folder. These capture key UI elements from the running project:
 
 - ATM Interface (Main Screen)
 - State Transition Graph
 - Regex Validation Module
 - PDA Stack Visualization
 - Turing Machine Tape
-
-If screenshot images are added, include them like this:
+- TOC Guide Page
 
 ```markdown
 ![ATM Interface](screenshots/atm-interface.png)
@@ -134,6 +133,7 @@ If screenshot images are added, include them like this:
 ![Regex Validation](screenshots/regex-validation.png)
 ![PDA Stack](screenshots/pda-stack.png)
 ![Turing Machine Tape](screenshots/tm-tape.png)
+![TOC Guide](screenshots/toc-guide.png)
 ```
 
 ---
